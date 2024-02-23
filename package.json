@@ -1,0 +1,28 @@
+{
+  "name": "mid_authorize_server",
+  "version": "0.0.1",
+  "description": "",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon ./oidc-server.js"
+  },
+  "author": "MID",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.4.1",
+    "express": "^4.18.2",
+    "express-session": "^1.18.0",
+    "jsonwebtoken": "^9.0.2",
+    "mariadb": "^3.2.3",
+    "nodemailer": "^6.9.9",
+    "oidc-provider": "^8.4.5",
+    "sequelize": "^6.36.0"
+  },
+  "devDependencies": {
+    "mysql2": "^3.9.1",
+    "nodemon": "^3.0.3"
+  }
+}

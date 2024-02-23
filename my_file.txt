@@ -1,0 +1,10 @@
+Here's the order you should follow based on the relationships you've described:
+
+1Company: Create the company first, as it doesn't seem to depend on any other tables.
+
+2User: Create the user next. If the user is associated with a company (i.e., there's a foreign key relationship), make sure the company exists before creating the user.
+
+3Client: Create the client last. Since a client is associated with a user (as indicated by the user_id foreign key), you need to ensure the user exists before you create a client.
+
+Remember, the order of creating records matters when there are dependencies between the tables. If a table has a foreign key that references another table, the referenced table (or record in the table) needs to exist before you can create a record in the referencing table.
+
