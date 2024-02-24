@@ -8,6 +8,7 @@ import ClientGrantType from './ClientGrantType.js';
 import Group from './Group.js';
 import UserGroup from './UserGroup.js';
 import CompanyGroup from './CompanyGroup.js';
+import CompanyFeature from './CompanyFeature.js';
 
 // access_token belongs to user
 User.hasMany(AccessToken, { foreignKey: 'user_id' });
@@ -49,3 +50,13 @@ Group.belongsToMany(User, { through: UserGroup });
 // Company belongs to many Group through CompanyGroup
 Company.belongsToMany(Group, { through: CompanyGroup, foreignKey: 'company_id' });
 Group.belongsToMany(Company, { through: CompanyGroup, foreignKey: 'group_id' });
+
+// Сompany has many features
+Company.hasMany(CompanyFeature, { foreignKey: 'company_id' });
+
+// User has many features
+User.hasMany(CompanyFeature, { foreignKey: 'enabled_by' });
+
+// CompanyFeature belongs to Company and User
+CompanyFeature.belongsTo(Company, { foreignKey: 'company_id' });
+CompanyFeature.belongsTo(User, { foreignKey: 'enabled_by' });
