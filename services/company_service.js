@@ -109,10 +109,16 @@ export const company_service = {
         if (query.email) {
           where.email = query.email;
         }
+        // Set page and page_size to their default values if they are undefined
+        page = page || 1;
+        page_size = page_size || 10;
+        // Parse page and page_size as integers
+        const pageNumber = parseInt(page, 10);
+        const pageSize = parseInt(page_size, 10);
         const users = await User.findAll({ 
           where,
-          offset: (page - 1) * page_size,
-          limit: page_size
+          offset: (pageNumber - 1) * pageSize,
+          limit: pageSize
         });
         return users;
       } 
