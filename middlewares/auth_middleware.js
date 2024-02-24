@@ -6,79 +6,81 @@ import Company from '../models/Company.js';
 import { auth_service } from '../services/auth_service.js';
 
 export const auth_middleware = {
-    authenticate_user: async (req, res, next) => {
-        try {
-          const token = req.header('Authorization').replace('Bearer ', '');
-          const decoded = jwt.decode(token); // Decode the token without verifying it to get the user ID
-    
-          const user = await User.findOne({ where: { user_id: decoded.uuid } });
-          if (!user) {
-            return res.status(401).json({ error: 'Please authenticate' });
-          }
-
-          jwt.verify(token, user.secret_key); // Now verify the token with the user's secret key
-    
-          req.user = user;
-          console.log(req.user); // Add this line to debug
-          next();
-        } catch (err) {
-          console.error(err); // Add this line to debug
-          res.status(500).json({ error: 'Failed to authenticate user' });
+  authenticate_user: async (req, res, next) => {
+      try {
+        const token = req.header('Authorization').replace('Bearer ', '');
+        const decoded = jwt.decode(token); // Decode the token without verifying it to get the user ID
+  
+        const user = await User.findOne({ where: { user_id: decoded.uuid } });
+        if (!user) {
+          return res.status(401).json({ error: 'Please authenticate' });
         }
-      },
 
-    authenticate_client: async (req, res, next) => {
-        try {
-            const token = req.header('Authorization').replace('Bearer ', '');
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            const client = await Client.findOne({ where: { uuid: decoded.client_uuid } });
-            if (!client) {
-                return res.status(401).json({ error: 'Please authenticate' });
-            }
-            req.client = client;
-            next();
-        } catch (err) {
-            res.status(500).json({ error: 'Failed to authenticate client' });
-        }
+        jwt.verify(token, user.secret_key); // Now verify the token with the user's secret key
+  
+        req.user = user;
+
+        next();
+      } 
+      catch (err) {
+        
+        res.status(500).json({ error: 'Failed to authenticate user' });
+      }
     },
 
-    authenticate_company: async (req, res, next) => {
-        try {
+  authenticate_client: async (req, res, next) => {
+      try {
           const token = req.header('Authorization').replace('Bearer ', '');
-          const decoded = jwt.decode(token); // Decode the token without verifying it to get the user ID
-    
-          const user = await User.findOne({ where: { user_id: decoded.uuid } });
-          if (!user) {
-            return res.status(401).json({ error: 'Please authenticate' });
+          const decoded = jwt.verify(token, process.env.JWT_SECRET);
+          const client = await Client.findOne({ where: { uuid: decoded.client_uuid } });
+          if (!client) {
+              return res.status(401).json({ error: 'Please authenticate' });
           }
-          
-    
-          jwt.verify(token, user.secret_key); // Now verify the token with the user's secret key
-    
-          const company = await Company.findOne({ where: { company_id: user.company_id } });
-          if (!company) {
-            return res.status(401).json({ error: 'Company not found' });
-          }
-    
-          req.user = user;
-          req.company = company;
-        
-          next();
-        } 
-        catch (err) {
-          res.status(500).json({ error: 'Failed to authenticate user', message: err.message });
-        }
-      },
-
-    authorize_admin: async (req, res, next) => {
-      const userUuid = req.user.uuid;
-
-      if (await auth_service.is_admin(userUuid)) {
+          req.client = client;
           next();
       } 
-      else {
-          res.status(403).json({ error: 'Access is forbidden' });
+      catch (err) {
+          res.status(500).json({ error: 'Failed to authenticate client' });
       }
+  },
+
+  authenticate_company: async (req, res, next) => {
+      try {
+        const token = req.header('Authorization').replace('Bearer ', '');
+        const decoded = jwt.decode(token); // Decode the token without verifying it to get the user ID
+  
+        const user = await User.findOne({ where: { user_id: decoded.uuid } });
+        if (!user) {
+          return res.status(401).json({ error: 'Please authenticate' });
+        }
+        
+  
+        jwt.verify(token, user.secret_key); // Now verify the token with the user's secret key
+  
+        const company = await Company.findOne({ where: { company_id: user.company_id } });
+        if (!company) {
+          return res.status(401).json({ error: 'Company not found' });
+        }
+  
+        req.user = user;
+        req.company = company;
+      
+        next();
+      } 
+      catch (err) {
+        res.status(500).json({ error: 'Failed to authenticate user', message: err.message });
+      }
+    },
+
+  authorize_admin: async (req, res, next) => {
+    const userUuid = req.user.uuid;
+
+    if (await auth_service.is_admin(userUuid)) {
+        next();
+    } 
+    else {
+        res.status(403).json({ error: 'Access is forbidden' });
+    }
   },
 
   authorize_company: async (req, res, next) => {
@@ -95,12 +97,25 @@ export const auth_middleware = {
     }
   },
 
-  authorize_roles: (allowed_permissions) => {
+  authorize_roles: (allowed_roles) => {
     return (req, res, next) => {
-      const user_permissions = req.user.permissions;
+      const user_roles = JSON.parse(req.user.roles);
+      if (allowed_roles.some(role => user_roles.includes(role))) {
+        next();
+      } 
+      else {
+        res.status(403).json({ message: `User does not have the required roles to perform this action.` });
+      }
+    }
+  },
+
+  authorize_permissions: (allowed_permissions) => {
+    return (req, res, next) => {
+      const user_permissions = JSON.parse(req.user.permissions);
       if (allowed_permissions.some(permission => user_permissions.includes(permission))) {
         next();
-      } else {
+      } 
+      else {
         res.status(403).json({ message: `User does not have the required permissions to perform this action.` });
       }
     }
