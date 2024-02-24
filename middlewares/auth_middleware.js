@@ -56,34 +56,27 @@ export const auth_middleware = {
 
 
     authorize_admin: async (req, res, next) => {
-      const userUuid = req.user.uuid;
+        const userUuid = req.user.uuid;
 
-      if (await auth_service.is_admin(userUuid)) {
-          next();
-      } else {
-          res.status(403).json({ error: 'Access is forbidden' });
+        if (await auth_service.is_admin(userUuid)) {
+            next();
+        } 
+        else {
+            res.status(403).json({ error: 'Access is forbidden' });
       }
   },
 
-  authorize_company: async (req, res, next) => {
-    try {
-      const token = req.header('Authorization').replace('Bearer ', '');
-
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  
-      const user = await User.findOne({ where: { user_id: decoded.uuid } });
-
-      const company = await Company.findOne({ where: { company_id: decoded.companyUuid } });      
-
-      if (await auth_service.is_company_owner(user.dataValues.user_id, company.dataValues.company_id)) {
-          next();
-      } 
-      else {
-          res.status(403).json({ error: 'Access is forbidden' });
-      }
-    }
-    catch (err) {
-      res.status(500).json({ error: 'Failed to authorize company' });
-    }
-  },
+    authorize_company: async (req, res, next) => {
+        try {
+            if (await auth_service.is_company_owner(req.user.dataValues.user_id, req.company.dataValues.company_id)) {
+                next();
+            } 
+            else {
+                res.status(403).json({ error: 'Access is forbidden' });
+            }
+        }
+        catch (err) {
+            res.status(500).json({ error: 'Failed to authorize company' });
+        }
+    },
 };
