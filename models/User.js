@@ -45,6 +45,11 @@ User.init({
     type: DataTypes.UUID,
     allowNull: true,
   },
+  permissions: {
+    type: DataTypes.JSON, // Use JSON to store an array of permissions
+    allowNull: false,
+    defaultValue: []
+  },
   created_at: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW

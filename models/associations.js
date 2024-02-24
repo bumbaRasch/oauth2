@@ -5,6 +5,8 @@ import AccessToken from './AccessToken.js';
 import Client from './Client.js';
 import AuthorizationCode from './AuthorizationCode.js';
 import ClientGrantType from './ClientGrantType.js';
+import Group from './Group.js';
+import UserGroup from './UserGroup.js';
 
 // access_token belongs to user
 User.hasMany(AccessToken, { foreignKey: 'user_id' });
@@ -38,3 +40,7 @@ Client.hasMany(ClientGrantType, { foreignKey: 'client_id' });
 
 // grant_type belongs to client
 ClientGrantType.belongsTo(Client, { foreignKey: 'client_id' });
+
+// Define the many-to-many relationship between User and Group
+User.belongsToMany(Group, { through: UserGroup });
+Group.belongsToMany(User, { through: UserGroup });
