@@ -64,32 +64,60 @@ export const company_service = {
         }
     },
 
-    get_company_users: async (company_uuid) => {
-      const users = await User.findAll({ where: { company_id: company_uuid } });
-      return users;
+    // by default, page = 1 and page_size = 10
+    get_company_users: async (company_uuid, page = 1, page_size = 10) => {
+      try {
+        const users = await User.findAll({ 
+          where: { company_id: company_uuid },
+          offset: (page - 1) * page_size,
+          limit: page_size
+        });
+        return users;
+      } 
+      catch (error) {
+        throw new Error('Error retrieving company users: ' + error.message);
+      }
     },
     
-    search_company_users: async (company_uuid, query) => {
-      const where = { company_id: company_uuid };
-      if (query.name) {
-        where.username = { [Op.like]: `%${query.name}%` };
+    search_company_users: async (company_uuid, query, page = 1, page_size = 10) => {
+      try {
+        const where = { company_id: company_uuid };
+        if (query.name) {
+          where.username = { [Op.like]: `%${query.name}%` };
+        }
+        if (query.email) {
+          where.email = { [Op.like]: `%${query.email}%` };
+        }
+        const users = await User.findAll({ 
+          where,
+          offset: (page - 1) * page_size,
+          limit: page_size
+        });
+        return users;
+      } 
+      catch (error) {
+        throw new Error('Error searching company users: ' + error.message);
       }
-      if (query.email) {
-        where.email = { [Op.like]: `%${query.email}%` };
-      }
-      const users = await User.findAll({ where });
-      return users;
     },
 
-    filter_company_users: async (company_uuid, query) => {
-      const where = { company_id: company_uuid };
-      if (query.name) {
-        where.username = query.name;
+    filter_company_users: async (company_uuid, query, page = 1, page_size = 10) => {
+      try {
+        const where = { company_id: company_uuid };
+        if (query.name) {
+          where.username = query.name;
+        }
+        if (query.email) {
+          where.email = query.email;
+        }
+        const users = await User.findAll({ 
+          where,
+          offset: (page - 1) * page_size,
+          limit: page_size
+        });
+        return users;
+      } 
+      catch (error) {
+        throw new Error('Error filtering company users: ' + error.message);
       }
-      if (query.email) {
-        where.email = query.email;
-      }
-      const users = await User.findAll({ where });
-      return users;
     },
 }
