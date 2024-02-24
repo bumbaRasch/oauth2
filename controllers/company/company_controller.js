@@ -39,6 +39,16 @@ export const company_controller = {
             res.status(500).json({ error: error.message });
         }
     },
+
+    get_company_users: async (req, res) => {
+        try {
+          const users = await company_service.get_company_users(req.params.uuid);
+          res.json(users);
+        } 
+        catch (error) {
+          res.status(500).json({ error: error.message });
+        }
+    },
 }
 
 export default company_controller;

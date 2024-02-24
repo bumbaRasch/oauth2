@@ -1,5 +1,6 @@
 // service/company_service.js
 import Company  from '../models/Company.js';
+import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 
 
@@ -60,5 +61,10 @@ export const company_service = {
         catch (error) {
             throw new Error('Error deleting company: ' + error.message);
         }
+    },
+
+    get_company_users: async (company_uuid) => {
+      const users = await User.findAll({ where: { company_id: company_uuid } });
+      return users;
     },
 }
