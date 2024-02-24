@@ -4,7 +4,6 @@ import sequelize  from './sequelize.js'; // import your sequelize instance
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
-
 class User extends Model {
   // This method will be used to compare the hashed password in the database with a plain text password
   async valid_password(password) {
@@ -45,8 +44,13 @@ User.init({
     type: DataTypes.UUID,
     allowNull: true,
   },
+  roles: {
+    type: DataTypes.JSON,
+    allowNull: false,
+    defaultValue: ['user']
+  },
   permissions: {
-    type: DataTypes.JSON, // Use JSON to store an array of permissions
+    type: DataTypes.JSON,
     allowNull: false,
     defaultValue: []
   },
@@ -57,7 +61,7 @@ User.init({
   updated_at: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW
-  }
+  },
 }, {
   sequelize,
   modelName: 'User',
@@ -66,7 +70,13 @@ User.init({
   updatedAt: 'updated_at',
   hooks: {
     // Hash the password before saving the user
-    beforeSave: async (user) => {
+    beforeCreate: async (user) => {
+      if (user.changed('password')) {
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(user.password, salt);
+      }
+    },
+    beforeUpdate: async (user) => {
       if (user.changed('password')) {
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(user.password, salt);
