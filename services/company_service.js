@@ -1,4 +1,5 @@
 // service/company_service.js
+import { Op } from 'sequelize';
 import Company  from '../models/Company.js';
 import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
@@ -65,6 +66,30 @@ export const company_service = {
 
     get_company_users: async (company_uuid) => {
       const users = await User.findAll({ where: { company_id: company_uuid } });
+      return users;
+    },
+    
+    search_company_users: async (company_uuid, query) => {
+      const where = { company_id: company_uuid };
+      if (query.name) {
+        where.username = { [Op.like]: `%${query.name}%` };
+      }
+      if (query.email) {
+        where.email = { [Op.like]: `%${query.email}%` };
+      }
+      const users = await User.findAll({ where });
+      return users;
+    },
+
+    filter_company_users: async (company_uuid, query) => {
+      const where = { company_id: company_uuid };
+      if (query.name) {
+        where.username = query.name;
+      }
+      if (query.email) {
+        where.email = query.email;
+      }
+      const users = await User.findAll({ where });
       return users;
     },
 }

@@ -13,5 +13,6 @@ router.put('/companies/:uuid', auth_middleware.authenticate_user, auth_middlewar
 router.delete('/companies/:uuid', auth_middleware.authenticate_user, auth_middleware.authenticate_company, auth_middleware.authorize_company, company_middlewares.company_exists, company_controller.delete);
 
 router.get('/companies/:uuid/users', auth_middleware.authenticate_user, auth_middleware.authenticate_company, auth_middleware.authorize_company, company_controller.get_company_users);
-
+router.get('/companies/:uuid/users/search', auth_middleware.authenticate_user, auth_middleware.authenticate_company, auth_middleware.authorize_company, company_controller.search_company_users);
+router.get('/companies/:uuid/users/filter', auth_middleware.authenticate_user, auth_middleware.authenticate_company, auth_middleware.authorize_company, company_controller.filter_company_users);
 export default router;

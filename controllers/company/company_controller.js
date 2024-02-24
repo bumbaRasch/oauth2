@@ -6,7 +6,8 @@ export const company_controller = {
         try {
           const company = await company_service.create(req.body);
           res.status(201).json(company);
-        } catch (error) {
+        } 
+        catch (error) {
           res.status(500).json({ error: error.message });
         }
       },
@@ -15,7 +16,8 @@ export const company_controller = {
         try {
             const company = await company_service.get_company(req.params.uuid);
             res.json(company);
-        } catch (error) {
+        } 
+        catch (error) {
             res.status(500).json({ error: error.message });
         }
     },
@@ -43,6 +45,25 @@ export const company_controller = {
     get_company_users: async (req, res) => {
         try {
           const users = await company_service.get_company_users(req.params.uuid);
+          res.json(users);
+        } 
+        catch (error) {
+          res.status(500).json({ error: error.message });
+        }
+    },
+
+    search_company_users: async (req, res) => {
+        try {
+          const users = await company_service.search_company_users(req.params.uuid, req.query);
+          res.json(users);
+        } 
+        catch (error) {
+          res.status(500).json({ error: error.message });
+        }
+    },
+    filter_company_users: async (req, res) => {
+        try {
+          const users = await company_service.filter_company_users(req.params.uuid, req.query);
           res.json(users);
         } 
         catch (error) {
