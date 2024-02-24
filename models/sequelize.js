@@ -32,6 +32,8 @@ wird aber normalerweise für die Produktionsumgebung nicht empfohlen, da dies zu
 //   await import('./GrantType.js');
 //   await import('./ClientGrantType.js');
 //   await import('./Group.js');
+//   await import('./UserGroup.js');
+//   await import('./CompanyGroup.js');
 //   await import('./associations.js');
 // })();
 

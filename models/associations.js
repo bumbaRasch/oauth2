@@ -7,6 +7,7 @@ import AuthorizationCode from './AuthorizationCode.js';
 import ClientGrantType from './ClientGrantType.js';
 import Group from './Group.js';
 import UserGroup from './UserGroup.js';
+import CompanyGroup from './CompanyGroup.js';
 
 // access_token belongs to user
 User.hasMany(AccessToken, { foreignKey: 'user_id' });
@@ -44,3 +45,7 @@ ClientGrantType.belongsTo(Client, { foreignKey: 'client_id' });
 // Define the many-to-many relationship between User and Group
 User.belongsToMany(Group, { through: UserGroup });
 Group.belongsToMany(User, { through: UserGroup });
+
+// Company belongs to many Group through CompanyGroup
+Company.belongsToMany(Group, { through: CompanyGroup, foreignKey: 'company_id' });
+Group.belongsToMany(Company, { through: CompanyGroup, foreignKey: 'group_id' });
