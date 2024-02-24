@@ -34,6 +34,7 @@ wird aber normalerweise für die Produktionsumgebung nicht empfohlen, da dies zu
 //   await import('./Group.js');
 //   await import('./UserGroup.js');
 //   await import('./CompanyGroup.js');
+//   await import('./CompanyFeature.js');
 //   await import('./associations.js');
 // })();
 
