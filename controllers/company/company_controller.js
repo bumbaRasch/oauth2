@@ -22,6 +22,18 @@ export const company_controller = {
       }
   },
 
+  get_companies: async (req, res) => {
+    try  {
+      const page = Number(req.query.page);
+      const page_size = Number(req.query.page_size);
+      const companies = await company_service.get_companies(page, page_size);
+      res.json(companies);
+    }
+    catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   update: async (req, res) => {
       try {
       const result = await company_service.update(req.params.uuid, req.body);

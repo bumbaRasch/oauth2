@@ -35,6 +35,19 @@ export const company_service = {
             throw new Error('Error retrieving company: ' + error.message);
         }
     },
+
+    get_companies: async (page = process.env.PAGE || 1, page_size = process.env.PAGE_SIZE || 10) => {
+      try {
+        page      = parseInt(page, 10);
+        page_size = parseInt(page_size, 10) || 10;
+        const offset = (page - 1) * page_size;
+        return await Company.findAll({ offset, limit: page_size });
+      } 
+      catch (error) {
+        throw new Error('Error retrieving companies: ' + error.message);
+      }
+    },
+
     update: async (uuid, body) => {
         try {
           const company = await Company.findByPk(uuid);
@@ -64,7 +77,7 @@ export const company_service = {
     },
 
     // by default, page = 1 and page_size = 10
-    get_company_users: async (company_uuid, page = 1, page_size = 10) => {
+    get_company_users: async (company_uuid, page = process.env.PAGE || 1, page_size = process.env.PAGE_SIZE || 10) => {
       try {
         page      = parseInt(page, 10) || 1;
         page_size = parseInt(page_size, 10) || 10;
@@ -77,7 +90,7 @@ export const company_service = {
       }
     },
     
-    search_company_users: async (company_uuid, query, page = 1, page_size = 10) => {
+    search_company_users: async (company_uuid, query, page = process.env.PAGE || 1, page_size = process.env.PAGE_SIZE || 10) => {
       try {
         const where = company_service_helpers.build_where_clause(company_uuid, query);
         return await company_service_helpers.get_users(where, page, page_size);
@@ -87,7 +100,7 @@ export const company_service = {
       }
     },
     
-    filter_company_users: async (company_uuid, query, page = 1, page_size = 10) => {
+    filter_company_users: async (company_uuid, query, page = process.env.PAGE || 1,  page_size = process.env.PAGE_SIZE || 10) => {
       try {
         const where = company_service_helpers.build_where_clause(company_uuid, query, true);
         return await company_service_helpers.get_users(where, page, page_size);
