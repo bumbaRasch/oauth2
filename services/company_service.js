@@ -11,7 +11,7 @@ export const company_service = {
           throw new Error('Company name, email, and password are required');
         }
         try {
-          const hashed_password = await bcrypt.hash(password, 10); // hash the password
+          const hashed_password = await company_service_helpers.hash_password(password); // hash the password
           const created = await Company.create({ name, password: hashed_password, email });
           return created; // return only the created company
         } 
@@ -106,6 +106,45 @@ export const company_service = {
       } 
       catch (error) {
         throw new Error('Error adding user to company: ' + error.message);
+      }
+    },
+
+    update_user_in_company: async (uuid, user_uuid, user_updates) => {
+      try {
+        const company = await Company.findByPk(uuid);
+        if (!company) {
+          throw new Error('Company not found');
+        }
+    
+        const user = await User.findOne({ where: { user_id: user_uuid, company_id: uuid } });
+
+        if (!user) {
+          throw new Error('User not found in this company');
+        }
+        
+        if (user_updates.company_id) {
+          await company_service_helpers.check_new_company(user_updates.company_id);
+        }
+    
+        if (user_updates.email) {
+          await company_service_helpers.check_email_exists(user_updates.email);
+        }
+    
+        if (user_updates.password) {
+          user_updates.password = await company_service_helpers.hash_password(user_updates.password);
+        }
+    
+        for (let key in user_updates) {
+          if (user[key] !== undefined) {
+            user[key] = user_updates[key];
+          }
+        }
+    
+        await user.save();
+    
+      } 
+      catch (error) {
+        throw new Error('Error updating user in company: ' + error.message);
       }
     },
 
