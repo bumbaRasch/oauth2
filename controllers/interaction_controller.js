@@ -3,7 +3,7 @@
 // interaction_controller.js
 import Provider from 'oidc-provider';
 //import { oaut_model } from ('../models/oauth_model');
-import express from expressä;
+import express from 'express';
 const router = express.Router();
 const provider = require('./path/to/your/oidcProvider'); // Подключение к вашему OIDC провайдеру
 

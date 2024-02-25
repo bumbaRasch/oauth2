@@ -39,7 +39,7 @@ export async function create_oidc_configuration() {
             access_token: 'jwt',
         },
         subject_types: ['public'],
-        interaction_url(ctx, interaction) {
+        interactionUrl(ctx, interaction) {
             return `/interaction/${ctx.oidc.uid}`;
         },
         claims: {
