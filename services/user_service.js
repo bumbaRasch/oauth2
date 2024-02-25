@@ -30,7 +30,7 @@ export const user_service = {
     const code = crypto.randomBytes(3).toString('hex');
     user.mfa_code = code;
     await user.save();
-    const token = jwt.sign({ uuid: user.user_id, company_uuid: user.company_id }, user.secret_key, { expiresIn: '1h' });
+    const token = jwt.sign({ uuid: user.user_id, company_uuid: user.company_id }, user.secret_key, { expiresIn: process.env.JWT_TTL || '1h' });
     return { user, token };
   },
 

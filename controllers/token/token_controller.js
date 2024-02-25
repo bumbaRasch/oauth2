@@ -13,7 +13,7 @@ export const token_controller = {
                 return res.status(400).json({ error: 'No user found with that UUID and Company UUID' });
             }
 
-            const token = jwt.sign({ uuid: user.uuid, company_uuid: user.company_id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            const token        = jwt.sign({ uuid: user.uuid, company_uuid: user.company_id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_TTL || '1h' })
             const refreshToken = jwt.sign({ uuid: user.uuid, company_uuid: user.company_id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
 
             res.json({ token, refreshToken });
@@ -33,7 +33,7 @@ export const token_controller = {
                 return res.status(403).json({ error: 'Access is forbidden' });
             }
 
-            const newToken = jwt.sign({ uuid: user.uuid, company_uuid: user.company_id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            const newToken = jwt.sign({ uuid: user.uuid, company_uuid: user.company_id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_TTL || '1h' });
             return res.json({ token: newToken });
         } 
         catch (err) {
