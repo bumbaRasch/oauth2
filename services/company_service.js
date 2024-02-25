@@ -1,5 +1,4 @@
 // service/company_service.js
-import { Op } from 'sequelize';
 import Company  from '../models/Company.js';
 import bcrypt from 'bcryptjs';
 import company_service_helpers from '../helpers/company_service_helpers.js';
