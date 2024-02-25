@@ -16,4 +16,5 @@ router.delete('/companies/:uuid', auth_middleware.authenticate_user, auth_middle
 router.get('/companies/:uuid/users', auth_middleware.authenticate_user, auth_middleware.authenticate_company, auth_middleware.authorize_company, company_controller.get_company_users);
 router.get('/companies/:uuid/users/search', auth_middleware.authenticate_user, auth_middleware.authenticate_company, auth_middleware.authorize_company, company_controller.search_company_users);
 router.get('/companies/:uuid/users/filter', auth_middleware.authenticate_user, auth_middleware.authenticate_company, auth_middleware.authorize_company, company_controller.filter_company_users);
+router.post('/companies/:uuid/users', auth_middleware.authenticate_user, auth_middleware.authorize_roles(['admin']), company_controller.add_user_to_company);
 export default router;

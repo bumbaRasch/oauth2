@@ -66,6 +66,18 @@ export const company_controller = {
     }
 },
 
+  add_user_to_company: async (req, res) => {
+    try {
+      const { uuid } = req.params;
+      const { username, password, email } = req.body; // full_name removed
+      const user = await company_service.add_user_to_company(uuid, { username, password, email });
+      res.status(201).json(user);
+    } 
+    catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   search_company_users: async (req, res) => {
     try {
       const page = Number(req.query.page);

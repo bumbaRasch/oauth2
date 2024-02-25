@@ -3,6 +3,7 @@ import { Op } from 'sequelize';
 import Company  from '../models/Company.js';
 import bcrypt from 'bcryptjs';
 import company_service_helpers from '../helpers/company_service_helpers.js';
+import User from '../models/User.js';
 
 export const company_service = {
     create: async (body) => {
@@ -87,6 +88,25 @@ export const company_service = {
       } 
       catch (error) {
         throw new Error('Error retrieving company users: ' + error.message);
+      }
+    },
+
+    add_user_to_company: async (uuid, userData) => {
+      try {
+        const company = await Company.findByPk(uuid);
+        if (!company) {
+          throw new Error('Company not found');
+        }
+    
+        const user = await User.create({
+          ...userData,
+          company_id: uuid
+        });
+    
+        return user;
+      } 
+      catch (error) {
+        throw new Error('Error adding user to company: ' + error.message);
       }
     },
     
