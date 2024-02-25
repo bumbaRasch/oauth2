@@ -109,6 +109,27 @@ export const company_service = {
         throw new Error('Error adding user to company: ' + error.message);
       }
     },
+
+    remove_user_from_company: async (uuid, user_uuid) => {
+      try {
+        const company = await Company.findByPk(uuid);
+        if (!company) {
+          throw new Error('Company not found');
+        }
+    
+        const user = await User.findOne({ where: { user_id: user_uuid, company_id: uuid } });
+        if (!user) {
+          throw new Error('User not found in this company');
+        }
+    
+        user.company_id = null;
+        await user.save();
+    
+      } 
+      catch (error) {
+        throw new Error('Error removing user from company: ' + error.message);
+      }
+    },
     
     search_company_users: async (company_uuid, query, page = process.env.PAGE || 1, page_size = process.env.PAGE_SIZE || 10) => {
       try {

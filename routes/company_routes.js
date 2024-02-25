@@ -4,6 +4,8 @@ import company_controller from '../controllers/company/company_controller.js';
 import { company_middlewares } from '../middlewares/company_middleware.js';
 import { validation_middleware } from '../middlewares/validation_middleware.js';
 import { auth_middleware } from '../middlewares/auth_middleware.js';
+import { user_middleware } from '../middlewares/user_middleware.js';
+
 
 const router = express.Router();
 
@@ -16,5 +18,13 @@ router.delete('/companies/:uuid', auth_middleware.authenticate_user, auth_middle
 router.get('/companies/:uuid/users', auth_middleware.authenticate_user, auth_middleware.authenticate_company, auth_middleware.authorize_company, company_controller.get_company_users);
 router.get('/companies/:uuid/users/search', auth_middleware.authenticate_user, auth_middleware.authenticate_company, auth_middleware.authorize_company, company_controller.search_company_users);
 router.get('/companies/:uuid/users/filter', auth_middleware.authenticate_user, auth_middleware.authenticate_company, auth_middleware.authorize_company, company_controller.filter_company_users);
+
+// Statistics routes for companies
+// router.get('/companies/:uuid/stats', auth_middleware.authenticate_user, auth_middleware.authorize_roles(['admin']), auth_middleware.authenticate_company, auth_middleware.authorize_company, company_controller.get_company_stats);
+
+
+// Create a new company user
 router.post('/companies/:uuid/users', auth_middleware.authenticate_user, auth_middleware.authorize_roles(['admin']), company_controller.add_user_to_company);
+// Remove a user from a company
+router.delete('/companies/:uuid/users/:user_uuid', auth_middleware.authenticate_user, auth_middleware.authorize_roles(['admin']), user_middleware.check_user_exists, company_controller.remove_user_from_company);
 export default router;
