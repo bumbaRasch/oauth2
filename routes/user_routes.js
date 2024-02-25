@@ -12,7 +12,7 @@ router.post('/login', user_controller.login);
 router.post('/logout', user_controller.logout);
 router.post('/password-reset', user_controller.request_password_reset);
 router.post('/password-reset/:token', user_controller.reset_password);
-router.post('/verify-mfa', user_controller.verify_Mfa);
+router.post('/verify-mfa', user_controller.verifyMfa);
 router.post('/update-secret-key', user_controller.update_secret_key);
 
 // Add routes for token generation and refresh
