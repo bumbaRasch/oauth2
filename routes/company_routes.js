@@ -25,6 +25,10 @@ router.get('/companies/:uuid/users/filter', auth_middleware.authenticate_user, a
 
 // Create a new company user
 router.post('/companies/:uuid/users', auth_middleware.authenticate_user, auth_middleware.authorize_roles(['admin']), company_controller.add_user_to_company);
+
+// Update a company user
+router.put('/companies/:uuid/users/:user_uuid', auth_middleware.authenticate_user, auth_middleware.authorize_roles(['admin']), user_middleware.check_user_exists, company_controller.update_user_in_company);
+
 // Remove a user from a company
 router.delete('/companies/:uuid/users/:user_uuid', auth_middleware.authenticate_user, auth_middleware.authorize_roles(['admin']), user_middleware.check_user_exists, company_controller.remove_user_from_company);
 export default router;

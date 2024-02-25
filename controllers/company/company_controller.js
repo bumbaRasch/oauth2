@@ -78,6 +78,18 @@ export const company_controller = {
     }
   },
 
+  update_user_in_company: async (req, res) => {
+    try {
+      const { uuid, user_uuid } = req.params;
+      const user_updates = req.body;
+      await company_service.update_user_in_company(uuid, user_uuid, user_updates);
+      res.status(200).json({ message: 'User successfully updated in the company' });
+    } 
+    catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   remove_user_from_company: async (req, res) => {
     try {
       const { uuid, user_uuid } = req.params;
