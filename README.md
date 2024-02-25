@@ -1,4 +1,6 @@
 OAuth2 Server
+
+
 This project is an implementation of an OAuth2 server. It's designed to provide companies and their users with secure access to resources via tokens. The server supports different features that can be toggled on and off for each company, and it also supports role-based access control and permissions for both companies and users.
 
 Features
