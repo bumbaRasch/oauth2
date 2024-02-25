@@ -3,22 +3,23 @@ import Company  from '../models/Company.js';
 import bcrypt from 'bcryptjs';
 import company_service_helpers from '../helpers/company_service_helpers.js';
 import User from '../models/User.js';
+import Client from '../models/Client.js';
 
 export const company_service = {
-    create: async (body) => {
+  create: async (body) => {
         const { name, password, email } = body;
-        if (!name || !password || !email) {
-          throw new Error('Company name, email, and password are required');
-        }
-        try {
-          const hashed_password = await company_service_helpers.hash_password(password);
+    if (!name || !password || !email) {
+      throw new Error('Company name, email, and password are required');
+    }
+    try {
+      const hashed_password = await company_service_helpers.hash_password(password);
           const created = await Company.create({ name, password: hashed_password, email });
           return created; // return only the created company
-        } 
-        catch (error) {
-          throw new Error('Error creating company: ' + error.message);
-        }
-    },
+    } 
+    catch (error) {
+      throw new Error('Error creating company: ' + error.message);
+    }
+  },
 
     get_company: async (uuid) => {
         if (!uuid) {

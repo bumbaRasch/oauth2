@@ -1,15 +1,17 @@
+// oidc-server.js
 import express from 'express';
 import bodyParser from 'body-parser';
 import Provider from 'oidc-provider';
 import session from 'express-session';
-import { oidc_config } from './config/oidc_config.js';
 import router from './routes/index.js';  // Import your routes
+import { create_oidc_configuration } from './config/oidc_config.js';
 import { auth_controller } from './controllers/auth_controller.js';
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+const oidc_config = await create_oidc_configuration();
 const oidc = new Provider('http://localhost:3000', oidc_config);
 
 app.get('/', (req, res) => {

@@ -34,6 +34,8 @@ export const auth_controller = {
 
       if (user) {
         req.session.user = user;
+        req.session.company_id = companyId;  // Set the company_id in the session
+        req.session.save();  // Save the session
         oidc.promptResult = 'login';
         return oidc.interactionFinished(req, res, { mergeWithLastSubmission: false });
       } else {
