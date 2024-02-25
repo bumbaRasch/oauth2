@@ -24,8 +24,8 @@ export const company_controller = {
 
   get_companies: async (req, res) => {
     try  {
-      const page = Number(req.query.page);
-      const page_size = Number(req.query.page_size);
+      const page      = req.query.page      !== undefined ? Number(req.query.page) : process.env.PAGE || 1;
+      const page_size = req.query.page_size !== undefined ? Number(req.query.page_size) : process.env.PAGE_SIZE || 10;
       const companies = await company_service.get_companies(page, page_size);
       res.json(companies);
     }
