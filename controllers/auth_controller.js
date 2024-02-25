@@ -2,63 +2,63 @@
 // Implementierung des Controllers für die Authentifizierung.
 import crypto from 'crypto';
 import User  from '../models/User.js';
-import dotenv from 'dotenv';
+
 // import { send_password_reset_email } from '../utils/email.js';  // You'll need to implement this
 
 
-export const auth_controller = async (req, res) => {
+export const auth_controller = {
+  process: async (req, res) => {
     const { oidc } = req;
-
     const { prompt: { name, details }, uid, result } = oidc;
-   
+
     switch (name) {
-      case 'login': {
-        // If it's a GET request, render the login form
-        if (req.method === 'GET') {
-          return res.render('login', { details, uid });
-        }
-  
-        // If it's a POST request, handle the form submission
-        if (req.method === 'POST') {
-          const { username, password, companyId } = req.body;
-        
-          // Authenticate the user within the context of their company
-          const user = await User.authenticate(username, password, companyId);
-  
-          if (user) {
-            // If the user is authenticated, store them in the session and proceed to the 'consent' prompt
-            req.session.user = user;
-            oidc.promptResult = 'login';
-            return oidc.interactionFinished(req, res, { mergeWithLastSubmission: false });
-          } 
-          else {
-            // If the user is not authenticated, render the login form with an error message
-            return res.render('login', { details, uid, error: 'Invalid username or password' });
-          }
-        }
-  
-        break;
-      }
-      case 'consent': {
-        // If it's a GET request, render the consent form
-        if (req.method === 'GET') {
-          return res.render('consent', { details, uid, client: result.client });
-        }
-  
-        // If it's a POST request, handle the form submission
-        if (req.method === 'POST') {
-          // Here you would handle the user's consent, e.g. store it in the database
-          // For simplicity, let's just proceed to the next prompt
-          oidc.promptResult = 'consent';
-          return oidc.interactionFinished(req, res, { mergeWithLastSubmission: false });
-        }
-  
-        break;
-      }
-      default: {
+      case 'login':
+        return auth_controller.login(req, res, details, uid, oidc);
+      case 'consent':
+        return auth_controller.consent(req, res, details, uid, oidc, result);
+      case 'authorize':
+        return auth_controller.authorize(req, res);
+      default:
         return oidc.interactionFinished(req, res, { mergeWithLastSubmission: false });
+    }
+  },
+
+  login: async (req, res, details, uid, oidc) => {
+    if (req.method === 'GET') {
+      return res.render('login', { details, uid });
+    }
+
+    if (req.method === 'POST') {
+      const { username, password, companyId } = req.body;
+      const user = await User.authenticate(username, password, companyId);
+
+      if (user) {
+        req.session.user = user;
+        oidc.promptResult = 'login';
+        return oidc.interactionFinished(req, res, { mergeWithLastSubmission: false });
+      } else {
+        return res.render('login', { details, uid, error: 'Invalid username or password' });
       }
     }
+  },
+
+  consent: async (req, res, details, uid, oidc, result) => {
+    if (req.method === 'GET') {
+      return res.render('consent', { details, uid, client: result.client });
+    }
+
+    if (req.method === 'POST') {
+      oidc.promptResult = 'consent';
+      return oidc.interactionFinished(req, res, { mergeWithLastSubmission: false });
+    }
+  },
+
+  authorize: async (req, res) => {
+    const authorization_code = crypto.randomBytes(20).toString('hex');
+    req.session.authorization_code = authorization_code;
+    const redirect_uri = req.query.redirect_uri;
+    res.redirect(`${redirect_uri}?code=${authorization_code}`);
+  }
 };
 
 
@@ -111,5 +111,3 @@ export const reset_password = async (req, res) => {
     res.status(400).send({ error: 'Error resetting password' });
   }
 };
-
-
