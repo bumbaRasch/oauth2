@@ -11,7 +11,7 @@ export const company_service = {
           throw new Error('Company name, email, and password are required');
         }
         try {
-          const hashed_password = await company_service_helpers.hash_password(password); // hash the password
+          const hashed_password = await company_service_helpers.hash_password(password);
           const created = await Company.create({ name, password: hashed_password, email });
           return created; // return only the created company
         } 
@@ -111,26 +111,30 @@ export const company_service = {
 
     update_user_in_company: async (uuid, user_uuid, user_updates) => {
       try {
-        const company = await Company.findByPk(uuid);
-        if (!company) {
-          throw new Error('Company not found');
-        }
-    
         const user = await User.findOne({ where: { user_id: user_uuid, company_id: uuid } });
-
         if (!user) {
           throw new Error('User not found in this company');
         }
-        
-        if (user_updates.company_id) {
-          await company_service_helpers.check_new_company(user_updates.company_id);
+    
+        if (user_updates.username) {
+          const username_error = await company_service_helpers.check_username_exists(user_updates.username, user.username);
+          if (username_error) {
+            throw new Error(username_error);
+          }
         }
     
         if (user_updates.email) {
-          await company_service_helpers.check_email_exists(user_updates.email);
+          const email_error = await company_service_helpers.check_email_exists(user_updates.email, user.email);
+          if (email_error) {
+            throw new Error(email_error);
+          }
         }
     
         if (user_updates.password) {
+          const password_error = await company_service_helpers.check_same_password(user, user_updates.password);
+          if (password_error) {
+            throw new Error(password_error);
+          }
           user_updates.password = await company_service_helpers.hash_password(user_updates.password);
         }
     
@@ -141,9 +145,7 @@ export const company_service = {
         }
     
         await user.save();
-    
-      } 
-      catch (error) {
+      } catch (error) {
         throw new Error('Error updating user in company: ' + error.message);
       }
     },
