@@ -8,41 +8,42 @@ import { user_service } from '../services/user_service.js';
 
 export const user_controller = {
   register: async (req, res) => {
-      try {
-        const user = await user_service.register(req.body);
-        res.status(201).json({ message: 'User registered successfully',});
-      } 
-      catch (error) {
-        res.status(400).send({ error: 'Error registering user' });
-        console.log(error);
-      }
+    try {
+      const user = await user_service.register(req.body);
+      res.status(201).json(user);
+    } 
+    catch (error) {
+      res.status(400).json({ error: error.message });
+    }
   },
 
   login: async (req, res) => {
     try {
-      const { user, token } = await user_service.login(req.body);
-      console.log
-      res.send({ message: 'User logged in successfully', user, token });
-    } catch (error) {
-      res.status(400).send({ error: error.message });
+      const result = await user_service.login(req.body);
+      res.status(200).json(result);
+    } 
+    catch (error) {
+      res.status(400).json({ error: error.message });
     }
   },
 
-  verify_Mfa: async (req, res) => {
+  verifyMfa: async (req, res) => {
     try {
-      const message = await user_service.verifyMfa(req.body);
-      res.send({ message });
-    } catch (error) {
-      res.status(400).send({ error: error.message });
+      const result = await user_service.verifyMfa(req.body);
+      res.status(200).json({ message: result });
+    } 
+    catch (error) {
+      res.status(400).json({ error: error.message });
     }
   },
 
   update_secret_key: async (req, res) => {
     try {
       const user = await user_service.update_secret_key(req.params.userId);
-      res.send({ message: 'Secret key updated successfully', user });
-    } catch (error) {
-      res.status(400).send({ error: error.message });
+      res.status(200).json(user);
+    } 
+    catch (error) {
+      res.status(400).json({ error: error.message });
     }
   },
 
