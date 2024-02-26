@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import User from '../models/User.js'; // import your User model
 import sequelize from '../models/sequelize.js';
 import jwt from 'jsonwebtoken';
+import { company_service_helpers } from '../helpers/company_service_helpers.js';
 
 export const user_service = {
   register: async (body) => {
@@ -12,7 +13,8 @@ export const user_service = {
     if(existing_user) {
       throw new Error('Username or email already in use');
     }
-    const user = await User.create({ username, password, email, company_id });
+    const hashed_password = await company_service_helpers.hash_password(password);
+    const user = await User.create({ username, password: hashed_password, email, company_id });
     await user.save();
     return user;
   }, 
