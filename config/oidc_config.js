@@ -19,12 +19,12 @@ export async function create_oidc_configuration() {
     return {
         adapter: (name) => new Sequelize_Adapter(name, sequelize),
         clients: clients,
-        find_account: async (ctx, id) => {
-            const user = await User.findByPk(id);
+        find_account: async (ctx, user_id) => {
+            const user = await User.findByPk(user_id);
             if (!user) throw new Error('User not found');
             return {
-                account_id: id,
-                async claims(use, scope) { return { sub: id }; },
+                account_id: user_id,
+                async claims(use, scope) { return { sub: user_id }; },
             };
         },
         cookies: {
