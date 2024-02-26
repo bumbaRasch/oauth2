@@ -60,6 +60,30 @@ Client.init({
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
+  website: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  logo: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  privacy_policy: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  terms_of_service: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   created_at: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW
