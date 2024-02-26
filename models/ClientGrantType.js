@@ -1,8 +1,6 @@
 //models/ClientGrantType.js
 import { Model, DataTypes } from 'sequelize';
 import sequelize from './sequelize.js'; // import your sequelize instance
-import Client from './Client.js'; // import your Client model
-import GrantType from './GrantType.js'; // import your GrantType model
 
 class ClientGrantType extends Model {}
 ClientGrantType.init({

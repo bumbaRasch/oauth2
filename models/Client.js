@@ -1,8 +1,6 @@
 // models/Client.js
 import { Model, DataTypes } from 'sequelize';
 import sequelize from './sequelize.js'; // import your sequelize instance
-import User from './User.js'; // import your User model
-import ClientGrantType from './ClientGrantType.js'; // import your User model
 
 class Client extends Model {}
 
@@ -52,7 +50,7 @@ Client.init({
       }
     },
   },
-  user_id: {
+  company_id: {
     type: DataTypes.UUID,
     allowNull: false,
   },
