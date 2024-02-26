@@ -7,11 +7,16 @@ import Client from '../models/Client.js';
 
 export const company_service = {
   create: async (body) => {
-        const { name, password, email } = body;
+    const { name, password, email } = body;
     if (!name || !password || !email) {
       throw new Error('Company name, email, and password are required');
     }
     try {
+      // Check if company already exists
+      const existing_company = await Company.findOne({ where: { email } });
+      if (existing_company) {
+        throw new Error('Company with this email already exists');
+      }
       const hashed_password = await company_service_helpers.hash_password(password);
           const created = await Company.create({ name, password: hashed_password, email });
           return created; // return only the created company
