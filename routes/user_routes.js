@@ -1,12 +1,13 @@
 // routes/auth_routes.js
 import express from 'express';
+import { validation_middleware } from '../middlewares/validation_middleware.js';
 import { auth_controller } from '../controllers/auth_controller.js';
 import { user_controller } from '../controllers/user_controller.js';
 import { token_controller } from '../controllers/token/token_controller.js'; // import the token controller
 
 const router = express.Router();
 
-router.post('/register', user_controller.register);
+router.post('/register', validation_middleware.validate_registration_input ,user_controller.register);
 router.post('/login', user_controller.login);
 
 router.post('/logout', user_controller.logout);
