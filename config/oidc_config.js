@@ -12,7 +12,7 @@ export async function create_oidc_configuration() {
         client_id: client.client_id,
         client_secret: client.client_secret,
         grant_types: ['authorization_code'],
-        redirect_uris: [process.env.REDIRECT_URI],
+        redirect_uris: [client.redirect_uri],
     }));
 
     return {

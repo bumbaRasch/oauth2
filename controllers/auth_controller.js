@@ -1,7 +1,9 @@
 // controllers/auth_controller.js
 // Implementierung des Controllers für die Authentifizierung.
-import crypto from 'crypto';
 import User  from '../models/User.js';
+import { generate_random_string } from '../utils/generate.js';
+import { randomBytes } from 'crypto';
+import { createHash } from 'crypto';
 
 // import { send_password_reset_email } from '../utils/email.js';  // You'll need to implement this
 
@@ -29,12 +31,12 @@ export const auth_controller = {
     }
 
     if (req.method === 'POST') {
-      const { username, password, companyId } = req.body;
-      const user = await User.authenticate(username, password, companyId);
+      const { username, password, company_id } = req.body;
+      const user = await User.authenticate(username, password, company_id);
 
       if (user) {
         req.session.user = user;
-        req.session.company_id = companyId;  // Set the company_id in the session
+        req.session.company_id = company_id;  // Set the company_id in the session
         req.session.save();  // Save the session
         oidc.promptResult = 'login';
         return oidc.interactionFinished(req, res, { mergeWithLastSubmission: false });
@@ -56,60 +58,12 @@ export const auth_controller = {
   },
 
   authorize: async (req, res) => {
-    const authorization_code = crypto.randomBytes(20).toString('hex');
+    const code_verifier = generate_random_string(64);
+    const code_challenge = createHash('sha256').update(code_verifier).digest('base64');
+    req.session.code_verifier = code_verifier;
+    const authorization_code = generate_random_string(16);
     req.session.authorization_code = authorization_code;
     const redirect_uri = req.query.redirect_uri;
-    res.redirect(`${redirect_uri}?code=${authorization_code}`);
-  }
-};
-
-
-export const request_password_reset = async (req, res) => {
-  const { email } = req.body;
-
-  try {
-    const user = await User.findOne({ where: { email } });
-
-    if (!user) {
-      return res.status(400).send({ error: 'No user found with that email' });
-    }
-
-    const token = crypto.randomBytes(20).toString('hex');
-    const expires = new Date();
-    expires.setHours(expires.getHours() + 1);  // Token expires in 1 hour
-
-    user.password_reset_token = token;
-    user.password_reset_expires = expires;
-
-    await user.save();
-
-    await send_password_reset_email(email, token);
-
-    res.send({ message: 'Password reset email sent' });
-  } catch (error) {
-    res.status(400).send({ error: 'Error resetting password' });
-  }
-};
-
-export const reset_password = async (req, res) => {
-  const { token } = req.params;
-  const { password } = req.body;
-
-  try {
-    const user = await User.findOne({ where: { password_reset_token: token } });
-
-    if (!user || user.password_reset_expires < new Date()) {
-      return res.status(400).send({ error: 'Invalid or expired password reset token' });
-    }
-
-    user.password = password;
-    user.password_reset_token = null;
-    user.password_reset_expires = null;
-
-    await user.save();
-
-    res.send({ message: 'Password reset successfully' });
-  } catch (error) {
-    res.status(400).send({ error: 'Error resetting password' });
+    res.redirect(`${redirect_uri}?code=${authorization_code}&code_challenge=${code_challenge}&code_challenge_method=S256`);
   }
 };
