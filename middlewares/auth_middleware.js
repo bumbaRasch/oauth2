@@ -72,17 +72,6 @@ export const auth_middleware = {
       }
     },
 
-  authorize_admin: async (req, res, next) => {
-    const userUuid = req.user.uuid;
-
-    if (await auth_service.is_admin(userUuid)) {
-        next();
-    } 
-    else {
-        res.status(403).json({ error: 'Access is forbidden' });
-    }
-  },
-
   authorize_company: async (req, res, next) => {
     try {
       if (await auth_service.is_company_owner(req.user.dataValues.user_id, req.company.dataValues.company_id)) {
