@@ -29,7 +29,7 @@ export const client_service = {
     },
 
     get_one_client: async (client_id) => {
-        const client = await Client.findOne({ where: { client_id } });
+        const client = await Client.findByPk(client_id);
         if (!client) {
             throw new Error('Client not found');
         }
@@ -38,7 +38,7 @@ export const client_service = {
 
     update_client: async (client_id, updates) => {
         console.log('updates', updates);
-        const client = await Client.findOne({ where: { client_id } });
+        const client = await Client.findByPk(client_id);
         if (!client) {
             throw new Error('Client not found');
         }
@@ -47,7 +47,7 @@ export const client_service = {
     },
 
     delete_client: async (client_id) => {
-        const client = await Client.findOne({ where: { client_id } });
+        const client = await Client.findByPk(client_id);
         if (!client) {
             throw new Error('Client not found');
         }
