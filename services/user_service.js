@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import User from '../models/User.js'; // import your User model
 import sequelize from '../models/sequelize.js';
 import jwt from 'jsonwebtoken';
+import { generate_random_string } from "../utils/generate.js";
 import { company_service_helpers } from '../helpers/company_service_helpers.js';
 
 export const user_service = {
@@ -29,7 +30,7 @@ export const user_service = {
     if (!is_valid) {
       throw new Error('Invalid username, password, or company');
     }
-    const code = crypto.randomBytes(3).toString('hex');
+    const code = generate_random_string(3);
     user.mfa_code = code;
     await user.save();
     const token = jwt.sign({ uuid: user.user_id, company_uuid: user.company_id }, user.secret_key, { expiresIn: process.env.JWT_TTL || '1h' });
@@ -58,7 +59,7 @@ export const user_service = {
 
   update_secret_key: async (userId) => {
     // Generate a new secret key
-    const new_secret_key = crypto.randomBytes(16).toString('hex');
+    const new_secret_key = generate_random_string(16);
 
     // Update the user's secret key
     const user = await User.findByPk(userId);
@@ -80,7 +81,7 @@ export async function request_password_reset(email) {
     throw new Error('No user found with that email');
   }
 
-  const token = crypto.randomBytes(20).toString('hex');
+  const token = generate_random_string(20);
   const expires = new Date();
   expires.setHours(expires.getHours() + 1);  // Token expires in 1 hour
 
@@ -104,10 +105,10 @@ export async function reset_password(token, password) {
   }
 
   // Hash the new password
-  const salt = crypto.randomBytes(16).toString('hex');
-  const hashedPassword = crypto.pbkdf2Sync(password, salt, 1000, 64, `sha512`).toString(`hex`);
+  const salt = generate_random_string(16);
+  const hashed_password = crypto.pbkdf2Sync(password, salt, 1000, 64, `sha512`).toString(`hex`);
 
-  user.password = hashedPassword;
+  user.password = hashed_password;
   user.password_reset_token = null;
   user.password_reset_expires = null;
 

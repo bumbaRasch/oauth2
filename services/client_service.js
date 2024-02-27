@@ -1,7 +1,7 @@
 // services/client_service.js
 import Client from "../models/Client.js";
 import Company from "../models/Company.js";
-import crypto from 'crypto';
+import { generate_random_string } from "../utils/generate.js";
 import company_service_helpers from "../helpers/company_service_helpers.js";
 
 export const client_service = {
@@ -16,7 +16,7 @@ export const client_service = {
             throw new Error('Company not found');
         }
 
-        const password =  crypto.randomBytes(16).toString('hex')
+        const password = generate_random_string(16);
         const client_secret = await company_service_helpers.hash_password(password);
         const client = await Client.create({ client_secret, company_id, name, redirect_uri, grant_types, scope, active });
         await client.save();
