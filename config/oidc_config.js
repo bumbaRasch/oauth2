@@ -1,17 +1,16 @@
 // config/oidc_config.js
-import Provider from 'oidc-provider';
 import Sequelize_Adapter from '../models/Sequelize_adapter.js';
 import sequelize from '../models/sequelize.js';
 import dotenv from 'dotenv';
 import User from '../models/User.js';
-import Company from '../models/Company.js';
+import Client from '../models/Client.js';
 dotenv.config();
 
 export async function create_oidc_configuration() {
-    const companies = await Company.findAll();
-    const clients = companies.map(company => ({
-        client_id: company.company_id,
-        client_secret: company.secret_key,
+    const clients_from_db = await Client.findAll();
+    const clients = clients_from_db.map(client => ({
+        client_id: client.client_id,
+        client_secret: client.client_secret,
         grant_types: ['authorization_code'],
         redirect_uris: [process.env.REDIRECT_URI],
     }));
