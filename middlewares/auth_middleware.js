@@ -4,29 +4,47 @@ import User from '../models/User.js';
 import Client from '../models/Client.js';
 import Company from '../models/Company.js';
 import { auth_service } from '../services/auth_service.js';
+import { verify_token_with_authorization_server } from '../utils/verify_token_with_authorization_server.js';
 
 export const auth_middleware = {
   authenticate_user: async (req, res, next) => {
-      try {
-        const token = req.header('Authorization').replace('Bearer ', '');
-        const decoded = jwt.decode(token); // Decode the token without verifying it to get the user ID
-  
-        const user = await User.findOne({ where: { user_id: decoded.uuid } });
-        if (!user) {
+    try {
+      const token = await req.header('Authorization').replace('Bearer ', '');
+      const decoded = jwt.decode(token);
+
+      const user = await User.findOne({ where: { user_id: decoded.uuid } });
+    
+      if (!user) {
           return res.status(401).json({ error: 'Please authenticate' });
-        }
-
-        jwt.verify(token, user.secret_key); // Now verify the token with the user's secret key
-  
-        req.user = user;
-
-        next();
-      } 
-      catch (err) {
-        
-        res.status(500).json({ error: 'Failed to authenticate user' });
       }
-    },
+
+      // Get the company of the user
+      const company = await Company.findOne({ where: { company_id: user.company_id } });
+
+      if (!company) {
+          return res.status(401).json({ error: 'Company not found' });
+      }
+
+      // Get the client of the company
+      const client = await Client.findOne({ where: { company_id: company.company_id } });
+     
+      const client_id = client.client_id;
+      const client_secret = client.client_secret;
+      
+      // Send a request to the authorization server to verify the token
+      const is_valid = await verify_token_with_authorization_server(token, client_id, client_secret);
+      
+      if (!is_valid) {
+          return res.status(401).json({ error: 'Invalid or expired token' });
+      }
+
+      req.user = user;
+      next();
+    } 
+    catch (err) {
+        res.status(500).json({ error: 'Failed to authenticate user' });
+    }
+  },
 
   authenticate_client: async (req, res, next) => {
       try {
