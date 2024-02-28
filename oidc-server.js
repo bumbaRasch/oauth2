@@ -44,8 +44,7 @@ verarbeiten muss, bevor Ihre Routen die Anfragen behandeln, und auftretende Fehl
 sollten an Ihre Middleware zur Fehlerbehandlung weitergeleitet werden.
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-  app.use(oidc.callback());
-
+app.use('/oidc/', oidc.callback());
   app.listen(3000, () => {
     console.log('Server and oidc-provider listening on port 3000, check http://localhost:3000/.well-known/openid-configuration');
   });
