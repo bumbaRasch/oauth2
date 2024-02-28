@@ -10,7 +10,10 @@ export const user_controller = {
   register: async (req, res) => {
     try {
       const user = await user_service.register(req.body);
-      res.status(201).json(user);
+      const redirect_url = req.query.redirect ? decodeURIComponent(req.query.redirect) : '/';
+      req.session.registrationSuccess = true;
+      console.log('User registered successfully: ', user);
+      res.redirect(redirect_url);
     } 
     catch (error) {
       res.status(400).json({ error: error.message });
