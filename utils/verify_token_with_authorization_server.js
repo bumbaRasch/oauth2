@@ -4,7 +4,7 @@ export const verify_token_with_authorization_server = async (token, client_id, c
     try {
         const response = await axios({
             method: 'post',
-            url: 'http://localhost:3000/oauth/check_token',
+            url: 'http://localhost:3000/oidc/check_token',
             headers: {
                 'Authorization': 'Basic ' + Buffer.from(`${client_id}:${client_secret}`).toString('base64')
             },
@@ -12,9 +12,9 @@ export const verify_token_with_authorization_server = async (token, client_id, c
                 token: token
             }
         });
-
         return response.data.active;
-    } catch (error) {
+    } 
+    catch (error) {
         console.error(error);
         return false;
     }
