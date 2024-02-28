@@ -17,6 +17,11 @@ router.get('/oidc/login', (req, res) => {
     // Render the login form
     res.send('login');
 });
+router.post('/oidc/check_token',token_controller.check_token);
+
+
+
+
 
 router.post('/logout', user_controller.logout);
 router.post('/password-reset', user_controller.request_password_reset);
