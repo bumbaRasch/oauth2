@@ -15,6 +15,10 @@ AccessToken.belongsTo(User, { foreignKey: 'user_id' });
 AccessToken.belongsTo(Client, { foreignKey: 'client_id' });
 
 
+AuthorizationCode.belongsTo(Client, { foreignKey: 'client_id' });
+AuthorizationCode.belongsTo(User, { foreignKey: 'user_id' });
+
+
 Client.hasMany(RefreshToken, { foreignKey: 'client_id' });
 RefreshToken.belongsTo(Client, { foreignKey: 'client_id' });
 
