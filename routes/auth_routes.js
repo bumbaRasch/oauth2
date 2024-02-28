@@ -3,12 +3,15 @@ import express from 'express';
 import { auth_controller } from '../controllers/auth_controller.js';
 import { user_controller } from '../controllers/user_controller.js';
 import { token_controller } from '../controllers/token/token_controller.js'; // import the token controller
+import { validation_middleware } from '../middlewares/validation_middleware.js';
+import { auth_middleware } from '../middlewares/auth_middleware.js';
 import Client  from '../models/Client.js';
+import AuthorizationCode from '../models/AuthorizationCode.js';
 
 const router = express.Router();
 
 
-router.get('/oidc/authorize', async (req, res) => {
+router.get('/oidc/authorize', auth_middleware.authenticate_user, async (req, res) => {
     const { client_id, redirect_uri, response_type, scope, state } = req.query;
     if (!client_id) {
         return res.status(400).json({ error: 'client_id is required' });
@@ -52,30 +55,19 @@ router.get('/oidc/authorize', async (req, res) => {
     // Authenticate user
     if (!req.user) {
         // If the user is not authenticated, redirect them to the login page
-        return res.redirect(`/oidc/login?redirect=${encodeURIComponent(req.originalUrl)}`);
+        return res.redirect(`/oidc/register?redirect=${encodeURIComponent(req.originalUrl)}`);
     }
 
-    console.log(req.query);
-});
+    const code = await AuthorizationCode.create({
+        client_id: client.id,
+        user_id: 12345,
+        scope: requested_scopes.join(' '),
+    });
+    console.log('code', code);
 
+    // Redirect the user back to the redirect_uri with the code and state
+    res.redirect(`${redirect_uri}?code=${code.value}&state=${state}`);
 
-router.get('/oidc/login', (req, res) => {
-    // Render the login form
-    res.send('login');
-});
-
-router.post('/oidc/login', async (req, res) => {
-    // Authenticate the user
-    const user = await authenticateUser(req.body.username, req.body.password);
-    if (user) {
-        // If the user is authenticated, set req.user and redirect them to the original page
-        req.user = user;
-        const redirectUrl = req.query.redirect ? decodeURIComponent(req.query.redirect) : '/';
-        res.redirect(redirectUrl);
-    } else {
-        // If the user is not authenticated, show an error message
-        res.render('login', { error: 'Invalid username or password' });
-    }
 });
 
 
