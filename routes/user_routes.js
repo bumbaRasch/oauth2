@@ -7,8 +7,16 @@ import { token_controller } from '../controllers/token/token_controller.js'; // 
 
 const router = express.Router();
 
-router.post('/register', validation_middleware.validate_registration_input ,user_controller.register);
-router.post('/login', user_controller.login);
+
+router.post('/oidc/register', validation_middleware.validate_registration_input ,user_controller.register);
+router.get('/oidc/register', (req, res) => {
+    res.send('register');
+});
+router.post('/oidc/login', user_controller.login);
+router.get('/oidc/login', (req, res) => {
+    // Render the login form
+    res.send('login');
+});
 
 router.post('/logout', user_controller.logout);
 router.post('/password-reset', user_controller.request_password_reset);
