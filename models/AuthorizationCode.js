@@ -2,14 +2,15 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from './sequelize.js'; // import your sequelize instance
 
-
 class AuthorizationCode extends Model {}
 AuthorizationCode.init({
   authorization_code_id: {
-    type: DataTypes.BIGINT,
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
-    autoIncrement: true,
   },
+  client_id: DataTypes.UUID,
+  user_id: DataTypes.UUID, 
   authorization_code: DataTypes.STRING(255),
   redirect_uri: DataTypes.STRING(255),
   expires: DataTypes.DATE,
