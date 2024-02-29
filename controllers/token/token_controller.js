@@ -19,22 +19,20 @@ export const token_controller = {
         const is_valid = await token_service.verify_token(token, user.secret_key);
         if (is_valid) {
             res.status(200).json({ active: true });
-        } else {
+        } 
+        else {
             res.status(401).json({ active: false });
         }
     },
 
     
 
-    generate_token: async (req, res) => {
-        const { uuid, company_uuid } = req.body;
-
+    generate_token: async (code) => {
         try {
-            const { token, refreshToken } = await token_service.generate_token(uuid, company_uuid);
-            res.json({ token, refreshToken });
+            return await token_service.generate_token(code);
         } 
         catch (err) {
-            res.status(500).json({ error: 'Failed to generate token' });
+            throw new Error('Failed to generate token');
         }
     },
 
