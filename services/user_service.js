@@ -14,8 +14,8 @@ export const user_service = {
     if(existing_user) {
       throw new Error('Username or email already in use');
     }
-    const hashed_password = await company_service_helpers.hash_password(password);
-    const user = await User.create({ username, password: hashed_password, email, company_id });
+    // const hashed_password = await company_service_helpers.hash_password(password);
+    const user = await User.create({ username, password, email, company_id });
     await user.save();
     return user;
   }, 
