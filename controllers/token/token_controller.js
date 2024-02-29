@@ -25,26 +25,17 @@ export const token_controller = {
         }
     },
 
-    
+    exchange_code_for_token: async (req, res) => {
 
-    generate_token: async (code) => {
-        try {
-            return await token_service.generate_token(code);
-        } 
-        catch (err) {
-            throw new Error('Failed to generate token');
-        }
-    },
-
-    refresh_token: async (req, res) => {
-        const { uuid, company_uuid } = req;
+        const { code, client_id, client_secret, redirect_uri } = req.body;
 
         try {
-            const token = await token_service.refresh_token(uuid, company_uuid);
-            return res.json({ token });
+            const { token, refreshToken } = await token_service.exchange_code_for_token(code, client_id, client_secret, redirect_uri);
+            res.json({ access_token: token, token_type: 'Bearer', refresh_token: refreshToken });
+            // Send email to user !
         } 
         catch (err) {
-            return res.status(500).json({ error: 'Failed to refresh token' });
+            res.status(500).json({ error: err.message });
         }
     },
 };
