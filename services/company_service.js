@@ -17,8 +17,7 @@ export const company_service = {
       if (existing_company) {
         throw new Error('Company with this email already exists');
       }
-      const hashed_password = await company_service_helpers.hash_password(password);
-          const created = await Company.create({ name, password: hashed_password, email });
+          const created = await Company.create({ name, password, email });
           return created; // return only the created company
     } 
     catch (error) {
