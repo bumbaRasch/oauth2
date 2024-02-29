@@ -58,15 +58,20 @@ router.get('/oidc/authorize', auth_middleware.authenticate_user, async (req, res
         return res.redirect(`/oidc/register?redirect=${encodeURIComponent(req.originalUrl)}`);
     }
 
-    const code = await AuthorizationCode.create({
-        client_id: client.id,
-        user_id: 12345,
-        scope: requested_scopes.join(' '),
-    });
-    console.log('code', code);
 
+    const code = await AuthorizationCode.create({
+        client_id: client.client_id,
+        user_id: req.user.user_id,
+        scope: requested_scopes.join(' '),
+        redirect_uri: redirect_uri, // save the redirect_uri
+        expires: new Date(Date.now() + 10*60*1000), // set the code to expire in 10 minutes
+        used: false, // set used to false initially
+    });
+
+    console.log(code.authorization_code)
+    
     // Redirect the user back to the redirect_uri with the code and state
-    res.redirect(`${redirect_uri}?code=${code.value}&state=${state}`);
+    res.redirect(`${redirect_uri}?code=${code.authorization_code}&state=${state}`);
 
 });
 
