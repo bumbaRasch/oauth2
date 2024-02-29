@@ -67,13 +67,44 @@ router.get('/oidc/authorize', auth_middleware.authenticate_user, async (req, res
         expires: new Date(Date.now() + 10*60*1000), // set the code to expire in 10 minutes
         used: false, // set used to false initially
     });
-
-    console.log(code.authorization_code)
     
     // Redirect the user back to the redirect_uri with the code and state
     res.redirect(`${redirect_uri}?code=${code.authorization_code}&state=${state}`);
 
 });
 
+router.post('/oidc/token', async (req, res) => {
+    const { code, client_id, client_secret, redirect_uri } = req.body;
+
+    // Validate the input
+    if (!code || !client_id || !client_secret || !redirect_uri) {
+        return res.status(400).json({ error: 'code, client_id, client_secret, and redirect_uri are required' });
+    }
+
+    // Find the client
+    const client = await Client.findByPk(client_id);
+    if (!client || client.client_secret !== client_secret) { 
+        return res.status(400).json({ error: 'Invalid client_id or client_secret' });
+    }
+
+    // Find the authorization code
+    const auth_code = await AuthorizationCode.findOne({ where: { authorization_code: code } });
+
+    if (!auth_code || auth_code.redirect_uri !== redirect_uri) {  // || auth_code.used || auth_code.expires < new Date()
+        return res.status(400).json({ error: 'Invalid or expired code' });
+    }
+
+    // Mark the authorization code as used
+    auth_code.used = true;
+    await auth_code.save();
+
+    // Create and return the access token
+    try {
+        const { token, refreshToken } = await token_controller.generate_token(code);
+        res.json({ access_token: token, token_type: 'Bearer', refresh_token: refreshToken });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 export default router;
