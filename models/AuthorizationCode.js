@@ -11,7 +11,10 @@ AuthorizationCode.init({
   },
   client_id: DataTypes.UUID,
   user_id: DataTypes.UUID, 
-  authorization_code: DataTypes.STRING(255),
+  authorization_code: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+  },
   redirect_uri: DataTypes.STRING(255),
   expires: DataTypes.DATE,
   used: DataTypes.BOOLEAN,
