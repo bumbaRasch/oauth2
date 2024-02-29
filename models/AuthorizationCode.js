@@ -16,6 +16,7 @@ AuthorizationCode.init({
     defaultValue: DataTypes.UUIDV4,
   },
   redirect_uri: DataTypes.STRING(255),
+  scope: DataTypes.STRING,
   expires: DataTypes.DATE,
   used: DataTypes.BOOLEAN,
 }, { sequelize, modelName: 'AuthorizationCode' });
