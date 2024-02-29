@@ -64,7 +64,7 @@ router.get('/oidc/authorize', auth_middleware.authenticate_user, async (req, res
         user_id: req.user.user_id,
         scope: requested_scopes.join(' '),
         redirect_uri: redirect_uri, // save the redirect_uri
-        expires: new Date(Date.now() + 10*60*1000), // set the code to expire in 10 minutes
+        expires: new Date(Date.now() + 15 * 60 * 1000), // set the code to expire in 15 minutes
         used: false, // set used to false initially
     });
     
