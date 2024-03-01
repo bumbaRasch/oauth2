@@ -7,42 +7,54 @@ import { auth_service } from '../services/auth_service.js';
 import { verify_token_with_authorization_server } from '../utils/verify_token_with_authorization_server.js';
 
 export const auth_middleware = {
-  authenticate_user: async (req, res, next) => {
+    authenticate_user: async (req, res, next) => {
     try {
-      const token = await req.header('Authorization').replace('Bearer ', '');
-      const decoded = jwt.decode(token);
+      const authHeader = req.header('Authorization');
+      if (!authHeader) {
+        return res.status(401).json({ error: 'Authorization header is required' });
+      }
 
-      const user = await User.findOne({ where: { user_id: decoded.uuid } });
-    
+      const token = authHeader.replace('Bearer ', '');
+      console.log('token: ', token);
+      let decoded;
+      try {
+        decoded = jwt.decode(token);
+      } 
+      catch (err) {
+        return res.status(401).json({ error: 'Invalid token' });
+      }
+
+      const user = await User.findOne({ where: { user_id: decoded.user_id } });
       if (!user) {
-          return res.status(401).json({ error: 'Please authenticate' });
+        return res.status(401).json({ error: 'Please authenticate' });
       }
 
-      // Get the company of the user
       const company = await Company.findOne({ where: { company_id: user.company_id } });
-
       if (!company) {
-          return res.status(401).json({ error: 'Company not found' });
+        return res.status(401).json({ error: 'Company not found' });
       }
 
-      // Get the client of the company
       const client = await Client.findOne({ where: { company_id: company.company_id } });
-     
-      const client_id = client.client_id;
-      const client_secret = client.client_secret;
-      
-      // Send a request to the authorization server to verify the token
-      const is_valid = await verify_token_with_authorization_server(token, client_id, client_secret);
-      
+      if (!client) {
+        return res.status(401).json({ error: 'Client not found' });
+      }
+
+      let is_valid;
+      try {
+        is_valid = await verify_token_with_authorization_server(token, client.client_id, client.client_secret);
+      } catch (err) {
+        return res.status(500).json({ error: 'Failed to verify token with authorization server' });
+      }
+
       if (!is_valid) {
-          return res.status(401).json({ error: 'Invalid or expired token' });
+        return res.status(401).json({ error: 'Invalid or expired token' });
       }
 
       req.user = user;
       next();
-    } 
-    catch (err) {
-        res.status(500).json({ error: 'Failed to authenticate user' });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ error: 'Failed to authenticate user' });
     }
   },
 
