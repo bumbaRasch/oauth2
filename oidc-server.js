@@ -26,6 +26,13 @@ app.use(bodyParser.json());
   });
 
   app.use('/', router);
+  
+  app.use((req, res, next) => {
+    if (req.session.user) {
+      req.user = req.session.user;
+    }
+    next();
+  });
 
   app.use(function(err, req, res, next) {
     console.error(err.stack);
