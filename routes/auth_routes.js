@@ -11,103 +11,81 @@ import AuthorizationCode from '../models/AuthorizationCode.js';
 const router = express.Router();
 
 
-router.get('/oidc/authorize', auth_middleware.authenticate_user, async (req, res) => {
+router.get('/oidc/authorize',  auth_middleware.authenticate_user, async (req, res) => {
     const { client_id, redirect_uri, response_type, scope, state } = req.query;
-    if (!client_id) {
-        return res.status(400).json({ error: 'client_id is required' });
-    }
 
-    if (!redirect_uri) {
-        return res.status(400).json({ error: 'redirect_uri is required' });
-    }
+    try {
+        if (!client_id) {
+            return res.status(400).json({ error: 'client_id is required' });
+        }
 
-    if (!response_type) {
-        return res.status(400).json({ error: 'response_type is required' });
-    } 
-    else if (response_type !== 'code') {
-        return res.status(400).json({ error: 'Invalid response_type. Only "code" is supported' });
-    }
+        if (!redirect_uri) {
+            return res.status(400).json({ error: 'redirect_uri is required' });
+        }
 
-    if (!scope) {
-        return res.status(400).json({ error: 'scope is required' });
-    }
+        if (!response_type) {
+            return res.status(400).json({ error: 'response_type is required' });
+        } else if (response_type !== 'code') { // Add more conditions here if you want to support other response types
+            return res.status(400).json({ error: 'Invalid response_type. Only "code" is supported' });
+        }
 
-    if (!state) {
-        return res.status(400).json({ error: 'state is required' });
-    }
+        if (!scope) {
+            return res.status(400).json({ error: 'scope is required' });
+        }
 
-    const client = await Client.findByPk( client_id );
-    if (!client) {
-        return res.status(400).json({ error: 'Invalid client_id' });
-    }
+        if (!state) {
+            return res.status(400).json({ error: 'state is required' });
+        }
 
-    if (!client.active) {
-        return res.status(400).json({ error: 'Client is inactive' });
-    }
+        const client = await Client.findByPk(client_id);
 
-    const client_scopes = client.scope;
-    const requested_scopes = scope.split(' ');
+        if (!client) {
+            return res.status(400).json({ error: 'Invalid client_id' });
+        }
 
-    if (!requested_scopes.every(scope => client_scopes.includes(scope))) {
-        return res.status(400).json({ error: 'Invalid scope' });
-    }
+        if (!client.active) {
+            return res.status(400).json({ error: 'Client is inactive' });
+        }
 
-    // Authenticate user
-    if (!req.user) {
-        // If the user is not authenticated, redirect them to the login page
-        return res.redirect(`/oidc/register?redirect=${encodeURIComponent(req.originalUrl)}`);
-    }
+        if (client.redirect_uri !== redirect_uri) {
+            return res.status(400).json({ error: 'Invalid redirect_uri' });
+        }
 
+        const client_scopes = client.scope;
+        const requested_scopes = scope.split(' ');
 
-    const code = await AuthorizationCode.create({
-        client_id: client.client_id,
-        user_id: req.user.user_id,
-        scope: requested_scopes.join(' '),
-        redirect_uri: redirect_uri, // save the redirect_uri
-        expires: new Date(Date.now() + 15 * 60 * 1000), // set the code to expire in 15 minutes
-        used: false, // set used to false initially
-    });
+        if (!requested_scopes.every(requested_scope => client_scopes.includes(requested_scope))) {
+            return res.status(400).json({ error: 'Invalid scope' });
+        }
+
     
-    // Redirect the user back to the redirect_uri with the code and state
-    res.redirect(`${redirect_uri}?code=${code.authorization_code}&state=${state}`);
+        // Authenticate user
+        if (!req.user) {
+            // If the user is not authenticated, redirect them to the login page
+            return res.redirect(`/oidc/login?redirect=${encodeURIComponent(req.originalUrl)}`);
+        }
 
+        // Create an authorization code
+        const code = await AuthorizationCode.create({
+            client_id: client.client_id,
+            user_id: req.user.user_id,
+            scope: requested_scopes.join(' '),
+            redirect_uri: redirect_uri, // save the redirect_uri
+            expires: new Date(Date.now() + 15 * 60 * 1000), // set the code to expire in 15 minutes
+            used: false, // set used to false initially
+        });
+        
+        console.log('code', code);
+
+        // Redirect the user back to the redirect_uri with the code and state
+        res.redirect(`${redirect_uri}?code=${code.authorization_code}&state=${state}`);
+    } 
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
 });
 
-
 router.post('/oidc/token', token_controller.exchange_code_for_token);
-
-// router.post('/oidc/token', async (req, res) => {
-//     const { code, client_id, client_secret, redirect_uri } = req.body;
-
-//     // Validate the input
-//     if (!code || !client_id || !client_secret || !redirect_uri) {
-//         return res.status(400).json({ error: 'code, client_id, client_secret, and redirect_uri are required' });
-//     }
-
-//     // Find the client
-//     const client = await Client.findByPk(client_id);
-//     if (!client || client.client_secret !== client_secret) { 
-//         return res.status(400).json({ error: 'Invalid client_id or client_secret' });
-//     }
-
-//     // Find the authorization code
-//     const auth_code = await AuthorizationCode.findOne({ where: { authorization_code: code } });
-
-//     if (!auth_code || auth_code.redirect_uri !== redirect_uri) {  // || auth_code.used || auth_code.expires < new Date()
-//         return res.status(400).json({ error: 'Invalid or expired code' });
-//     }
-
-//     // Mark the authorization code as used
-//     auth_code.used = true;
-//     await auth_code.save();
-
-//     // Create and return the access token
-//     try {
-//         const { token, refreshToken } = await token_controller.generate_token(code);
-//         res.json({ access_token: token, token_type: 'Bearer', refresh_token: refreshToken });
-//     } catch (err) {
-//         res.status(500).json({ error: err.message });
-//     }
-// });
 
 export default router;
