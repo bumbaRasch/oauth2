@@ -5,13 +5,12 @@ import AuthorizationCode from '../../models/AuthorizationCode.js';
 
 
 export const token_service = {
-    verify_token: async (token) => {
+    verify_token: async (token, user_secret_key) => {
         try {
-            jwt.verify(token, process.env.JWT_SECRET);
+            jwt.verify(token, user_secret_key);
             return true;
         } 
         catch (error) {
-            console.error(error);
             return false;
         }
     },
