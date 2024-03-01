@@ -10,11 +10,10 @@ import { company_service_helpers } from '../helpers/company_service_helpers.js';
 export const user_service = {
   register: async (body) => {
     const { username, password, email, company_id } = body;
-    const existing_user = await User.findOne({ where: sequelize.or({ username: username }, { email: email } )});
+    const existing_user = await User.findOne({ where: sequelize.and({ username: username }, { email: email } )});
     if(existing_user) {
       throw new Error('Username or email already in use');
     }
-    // const hashed_password = await company_service_helpers.hash_password(password);
     const user = await User.create({ username, password, email, company_id });
     await user.save();
     return user;
@@ -22,7 +21,7 @@ export const user_service = {
 
   login: async ( body ) => {
     const  { username, password, company_id } = body;
-    const user = await User.findOne({ where: sequelize.or({ username: username }, { company_id: company_id } )});
+    const user = await User.findOne({ where: sequelize.and({ username: username }, { company_id: company_id } )});
     if (!user) {
       throw new Error('Invalid username, password, or company');
     }
@@ -33,7 +32,7 @@ export const user_service = {
     const code = generate_random_string(3);
     user.mfa_code = code;
     await user.save();
-    const token = jwt.sign({ uuid: user.user_id, company_uuid: user.company_id }, user.secret_key, { expiresIn: process.env.JWT_TTL || '1h' });
+    const token = jwt.sign({ user_id: user.user_id, company_id: user.company_id }, user.secret_key, { expiresIn: process.env.JWT_TTL || '1h' });
     return { user, token };
   },
 
