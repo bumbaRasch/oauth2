@@ -22,8 +22,11 @@ export const user_controller = {
 
   login: async (req, res) => {
     try {
-      const result = await user_service.login(req.body);
-      res.status(200).json(result);
+      const { user, token } = await user_service.login(req.body);
+      req.session.user = user; // Save in session after login
+      const redirect_url = req.query.redirect ? decodeURIComponent(req.query.redirect) : '/';
+      res.send({ user, token, redirect_url });
+      //res.redirect(redirect_url);
     } 
     catch (error) {
       res.status(400).json({ error: error.message });
