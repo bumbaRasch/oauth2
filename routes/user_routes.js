@@ -15,8 +15,9 @@ router.get('/oidc/register', (req, res) => {
 router.post('/oidc/login', user_controller.login);
 router.get('/oidc/login', (req, res) => {
     // Render the login form
-    res.send('login');
+    res.json({ redirect: req.query.redirect });
 });
+
 router.post('/oidc/check_token',token_controller.check_token);
 
 
@@ -30,8 +31,8 @@ router.post('/verify-mfa', user_controller.verifyMfa);
 router.post('/update-secret-key', user_controller.update_secret_key);
 
 // Add routes for token generation and refresh
-router.post('/token', token_controller.generate_token);
-router.post('/token/refresh', token_controller.refresh_token);
+// router.post('/token', token_controller.generate_token);
+// router.post('/token/refresh', token_controller.refresh_token);
 
 export default router;
 
