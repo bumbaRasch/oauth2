@@ -79,7 +79,7 @@ export const auth_middleware = {
         const token = req.header('Authorization').replace('Bearer ', '');
         const decoded = jwt.decode(token); // Decode the token without verifying it to get the user ID
   
-        const user = await User.findOne({ where: { user_id: decoded.uuid } });
+        const user = await User.findOne({ where: { user_id: decoded.user_id } });
         if (!user) {
           return res.status(401).json({ error: 'Please authenticate' });
         }
