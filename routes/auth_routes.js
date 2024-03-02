@@ -25,7 +25,8 @@ router.get('/oidc/authorize',  auth_middleware.authenticate_user, async (req, re
 
         if (!response_type) {
             return res.status(400).json({ error: 'response_type is required' });
-        } else if (response_type !== 'code') { // Add more conditions here if you want to support other response types
+        } 
+        else if (response_type !== 'code') { // Add more conditions here to support other response types
             return res.status(400).json({ error: 'Invalid response_type. Only "code" is supported' });
         }
 
@@ -81,7 +82,6 @@ router.get('/oidc/authorize',  auth_middleware.authenticate_user, async (req, re
         res.redirect(`${redirect_uri}?code=${code.authorization_code}&state=${state}`);
     } 
     catch (error) {
-        console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
