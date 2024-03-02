@@ -1,4 +1,5 @@
 // services/client_service.js
+import { Op } from "sequelize";
 import Client from "../models/Client.js";
 import Company from "../models/Company.js";
 import { generate_random_string } from "../utils/generate.js";
@@ -14,6 +15,12 @@ export const client_service = {
         const company = await Company.findByPk(company_id);
         if (!company) {
             throw new Error('Company not found');
+        }
+
+        // Check if a client with the same name or redirect_uri already exists
+        const existing_сlient = await Client.findOne({ where: { company_id, [Op.or]: [{ name }, { redirect_uri }] } });
+        if (existing_сlient) {
+            throw new Error('A client with the same name or redirect_uri already exists for this company');
         }
 
         const password = generate_random_string(16);
