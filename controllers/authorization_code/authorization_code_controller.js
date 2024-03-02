@@ -1,4 +1,5 @@
 // controllers/authorization_code/authorization_code_controller.js
+import { authorization_code_service } from '../../services/authorization_code/authorization_code_service.js';
 export const authorization_code_controller = {
     create_authorization_code: async (req, res) => {
         try {
