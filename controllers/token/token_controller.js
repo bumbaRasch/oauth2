@@ -2,6 +2,7 @@
 import jwt from 'jsonwebtoken';
 import User from '../../models/User.js';
 import { token_service } from '../../services/token/token_service.js';
+import Client from '../../models/Client.js';
 
 export const token_controller = {
     // Basic authentication
@@ -20,7 +21,11 @@ export const token_controller = {
 
         const [client_id, client_secret] = Buffer.from(auth_parts[1], 'base64').toString().split(':');
 
-        // Здесь вы можете использовать client_id и client_secret для аутентификации клиента
+        // Проверяем учетные данные клиента
+        const client = await Client.findOne({ where: { client_id: client_id, client_secret: client_secret } });
+        if (!client) {
+            return res.status(401).json({ error: 'Invalid client credentials' });
+        }
 
         const token = req.body.token;
 
@@ -58,6 +63,28 @@ export const token_controller = {
             const { token, refreshToken } = await token_service.exchange_code_for_token(code, client_id, client_secret, redirect_uri);
             res.json({ access_token: token, token_type: 'Bearer', refresh_token: refreshToken });
             // Send email to user !
+        } 
+        catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    },
+
+    refresh_token: async (req, res) => {
+        const auth_header = req.headers.authorization;
+        if (!auth_header) {
+            return res.status(401).json({ error: 'Authorization header is required' });
+        }
+    
+        const auth_parts = auth_header.split(' ');
+        if (auth_parts.length !== 2 || auth_parts[0] !== 'Bearer') {
+            return res.status(401).json({ error: 'Invalid authorization header format. Format is "Bearer refreshToken"' });
+        }
+    
+        const refresh_token = auth_parts[1];
+    
+        try {
+            const newTokens = await token_service.refresh_token(refresh_token);
+            res.json(newTokens);
         } 
         catch (err) {
             res.status(500).json({ error: err.message });
