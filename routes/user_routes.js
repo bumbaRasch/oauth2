@@ -41,7 +41,7 @@ router.get('/oidc/consent', auth_middleware.authenticate, async (req, res) => {
         const code_challenge_method = 'S256'; // Or 'plain', depending on your implementation
 
         // Render the consent page with the client data
-        res.render('consent', { client, state, code_challenge, code_challenge_method });
+        res.render('consent', { client, state, code_challenge, code_challenge_method});
     } 
     catch (error) {
         res.status(500).json({ error: error.message });
@@ -67,6 +67,8 @@ router.post('/oidc/consent', async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
+
+router.get('/callback', token_controller.exchange_code_for_token);
 
 
 
