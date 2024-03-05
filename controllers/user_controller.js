@@ -10,9 +10,8 @@ export const user_controller = {
   register: async (req, res) => {
     try {
       const user = await user_service.register(req.body);
-      const redirect_url = req.query.redirect ? decodeURIComponent(req.query.redirect) : '/';
+      const redirect_url = req.query.redirect ? decodeURIComponent(req.query.redirect) : '/oidc/login';
       req.session.registrationSuccess = true;
-      console.log('User registered successfully: ', user);
       res.redirect(redirect_url);
     } 
     catch (error) {
@@ -22,14 +21,24 @@ export const user_controller = {
 
   login: async (req, res) => {
     try {
-      const { user, token } = await user_service.login(req.body);
-      req.session.user = user; // Save in session after login
-      const redirect_url = req.query.redirect ? decodeURIComponent(req.query.redirect) : '/';
-      res.send({ user, token, redirect_url });
-      //res.redirect(redirect_url);
+      const { user } = await user_service.login(req.body);
+      console.log(user)
+      req.session.user_id = user.user_id;
+      req.session.user = user;
+      res.redirect('/oidc/consent');
     } 
     catch (error) {
       res.status(400).json({ error: error.message });
+    }
+  },
+
+  consent: async (req, res) => {
+    try {
+      // Display the consent page to the user
+      res.render('consent');
+    } 
+    catch (error) {
+      res.status(500).json({ error: error.message });
     }
   },
 
