@@ -7,8 +7,11 @@ import router from './routes/index.js';  // Import your routes
 import { create_oidc_configuration } from './config/oidc_config.js';
 
 const app = express();
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+//Set EJS as the view engine
+app.set('view engine', 'ejs'); 
 
 (async () => {
   const oidc_config = await create_oidc_configuration();
@@ -21,9 +24,9 @@ app.use(bodyParser.json());
     cookie: { secure: false, httpOnly: true, maxAge: 60000 }  // Session will expire after 60000 milliseconds (1 minute)  // This marks the cookie to be used with HTTPS only. In development, you can set it to false.
   }));
 
-  app.get('/', (req, res) => {
-    res.send('Welcome to the root route!');
-  });
+  app.get('/welcome', (req, res) => {
+    res.render('index');
+});
 
   app.use('/', router);
   
