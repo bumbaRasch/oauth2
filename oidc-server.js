@@ -5,6 +5,7 @@ import Provider from 'oidc-provider';
 import session from 'express-session';
 import router from './routes/index.js';  // Import your routes
 import { create_oidc_configuration } from './config/oidc_config.js';
+import { auth_middleware } from './middlewares/auth_middleware.js';
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -21,7 +22,7 @@ app.set('view engine', 'ejs');
     secret: process.env.SESSION_SECRET, // This is used to sign the session ID cookie.
     resave: false,                      // This forces the session to be saved back to the session store, even if the session was never modified during the request.
     saveUninitialized: true,            // This forces a session that is "uninitialized" to be saved to the store. A session is uninitialized when it is new but not modified.
-    cookie: { secure: false, httpOnly: true, maxAge: 60000 }  // Session will expire after 60000 milliseconds (1 minute)  // This marks the cookie to be used with HTTPS only. In development, you can set it to false.
+    cookie: { secure: false, httpOnly: true, maxAge: 3000000 }  // Session will expire after 60000 milliseconds (1 minute)  // This marks the cookie to be used with HTTPS only. In development, you can set it to false.
   }));
 
   app.get('/welcome', (req, res) => {
@@ -36,6 +37,12 @@ app.set('view engine', 'ejs');
     }
     next();
   });
+
+
+app.get('/protected', auth_middleware.authenticate_user, (req, res) => {
+  res.json({ message: 'You are authorized!' });
+});
+
 
   app.use(function(err, req, res, next) {
     console.error(err.stack);
