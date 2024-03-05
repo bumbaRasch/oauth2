@@ -2,12 +2,13 @@
 import Client from '../models/Client.js';
 import AuthorizationCode from '../models/AuthorizationCode.js';
 
+
 export const auth_service = {
-    authorize: async (client_id, redirect_uri, response_type, scope, state, user) => {
+    authorize: async (client_id, redirect_uri, response_type, scope, state, code_challenge, code_challenge_method, user) => {
         if (!client_id) {
             throw new Error('client_id is required');
         }
-
+        
         if (!redirect_uri) {
             throw new Error('redirect_uri is required');
         }
@@ -41,6 +42,14 @@ export const auth_service = {
             throw new Error('Invalid redirect_uri');
         }
 
+        if (!code_challenge) {
+            throw new Error('code_challenge is required');
+        }
+
+        if (!code_challenge_method) {
+            throw new Error('code_challenge_method is required');
+        }
+
         const client_scopes = client.scope;
         const requested_scopes = scope.split(' ');
 
@@ -55,6 +64,8 @@ export const auth_service = {
             redirect_uri: redirect_uri,
             expires: new Date(Date.now() + 15 * 60 * 1000),
             used: false,
+            code_challenge: code_challenge, // Add this line
+            code_challenge_method: code_challenge_method, // Add this line
         });
 
         console.log('code', code);
