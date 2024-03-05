@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register Client</title>
+</head>
+<body>
+    <h1>Register Client</h1>
+    <form action="/register/client" method="post">
+        <div>
+            <label for="name">Client Name:</label><br>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div>
+            <label for="redirect_uri">Redirect URI:</label><br>
+            <input type="text" id="redirect_uri" name="redirect_uri" required>
+        </div>
+        <div>
+            <label for="grant_types">Grant Types:</label><br>
+            <input type="text" id="grant_types" name="grant_types" required>
+        </div>
+        <div>
+            <label for="scope">Scope:</label><br>
+            <input type="text" id="scope" name="scope" required>
+        </div>
+        <div>
+            <label for="active">Active:</label><br>
+            <input type="checkbox" id="active" name="active">
+        </div>
+        <div>
+            <label for="company_id">Company:</label><br>
+            <select id="company_id" name="company_id">
+                <% companies.forEach(function(company) { %>
+                    <option value="<%= company.company_id %>" <%= company.company_id == selected_company_id ? 'selected' : '' %>><%= company.name %></option>
+                <% }); %>
+            </select>
+        </div>
+        <div>
+            <input type="submit" value="Register">
+        </div>
+    </form>
+    <button onclick="location.href='/welcome'" type="button">Back</button>
+</body>
+</html>
