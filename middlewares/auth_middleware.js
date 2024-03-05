@@ -7,6 +7,31 @@ import { auth_service } from '../services/auth_service.js';
 import { verify_token_with_authorization_server } from '../utils/verify_token_with_authorization_server.js';
 
 export const auth_middleware = {
+  authenticate: async (req, res, next) => {
+    console.log(req.session.user_id)
+    try {
+      if (req.session && req.session.user_id) {
+       
+        const user = await User.findByPk(req.session.user_id);
+       
+        
+        if (user) {
+            res.locals.user = user; // Save user in res.locals
+            next();
+        } 
+        else {
+            res.status(401).json({ error: 'Unauthorized' });
+        }
+      } 
+      else {
+        res.status(401).json({ error: 'Unauthorized' });
+      }
+    } 
+    catch (err) {
+      res.status(500).json({ error: 'Failed to authenticate user' });
+    }
+  },
+  
     authenticate_user: async (req, res, next) => {
     try {
       const authHeader = req.header('Authorization');

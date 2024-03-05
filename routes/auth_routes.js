@@ -9,7 +9,7 @@ import { auth_middleware } from '../middlewares/auth_middleware.js';
 
 const router = express.Router();
 
-router.get('/oidc/authorize', auth_middleware.authenticate_user, auth_controller.authorize);
+router.get('/oidc/authorize', auth_middleware.authenticate, auth_controller.authorize);
 router.post('/oidc/token', token_controller.exchange_code_for_token);
 router.post('/oidc/check_token',token_controller.check_token);
 router.post('/oidc/refresh_token', token_controller.refresh_token);
