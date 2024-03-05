@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import User from '../../models/User.js';
 import { token_service } from '../../services/token/token_service.js';
 import Client from '../../models/Client.js';
+import AuthorizationCode from '../../models/AuthorizationCode.js';
 
 export const token_controller = {
     // Basic authentication
@@ -20,9 +21,12 @@ export const token_controller = {
         }
 
         const [client_id, client_secret] = Buffer.from(auth_parts[1], 'base64').toString().split(':');
+       
+        
 
         // Проверяем учетные данные клиента
         const client = await Client.findOne({ where: { client_id: client_id, client_secret: client_secret } });
+        
         if (!client) {
             return res.status(401).json({ error: 'Invalid client credentials' });
         }
@@ -43,6 +47,7 @@ export const token_controller = {
             return res.status(404).json({ error: 'User not found' });
         }
 
+        
         const is_valid = await token_service.verify_token(token, user.secret_key);
 
         if (is_valid) {
@@ -56,12 +61,22 @@ export const token_controller = {
     // Bearer authentication code exchange to token
     exchange_code_for_token: async (req, res) => {
 
-        const { code, client_id, client_secret, redirect_uri } = req.body;
-        console.log('code: ', code);
+        const { code, state,} =  req.query;
+       
+        const auth_code = await AuthorizationCode.findOne({ where: { authorization_code: code } });
+        if (!auth_code) {
+            return res.status(400).json({ error: 'Authorization code not found' });
+        }
+        const client = await Client.findByPk(auth_code.client_id);
+        if (!client) {
+            return res.status(400).json({ error: 'Client not found' });
+        }
 
         try {
-            const { token, refreshToken } = await token_service.exchange_code_for_token(code, client_id, client_secret, redirect_uri);
-            res.json({ access_token: token, token_type: 'Bearer', refresh_token: refreshToken });
+            const { token, refreshToken } = await token_service.exchange_code_for_token(code, client.client_id, client.client_secret, client.redirect_uri);
+
+            // Render the callback view with the access token and state
+            res.render('callback', { access_token: token, state, refreshToken: refreshToken });
             // Send email to user !
         } 
         catch (err) {
