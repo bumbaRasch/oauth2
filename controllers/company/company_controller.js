@@ -5,7 +5,7 @@ export const company_controller = {
   create: async (req, res) => {
       try {
         const company = await company_service.create(req.body);
-        res.status(201).json(company);
+        res.redirect(`/register/client?company_id=${company.company_id}`); 
       } 
       catch (error) {
         res.status(500).json({ error: error.message });
