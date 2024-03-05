@@ -23,6 +23,7 @@
     "sequelize": "^6.36.0"
   },
   "devDependencies": {
+    "ejs": "^3.1.9",
     "mysql2": "^3.9.1",
     "nodemon": "^3.0.3"
   }
