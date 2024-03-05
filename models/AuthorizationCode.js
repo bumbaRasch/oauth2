@@ -16,6 +16,13 @@ AuthorizationCode.init({
     defaultValue: DataTypes.UUIDV4,
   },
   redirect_uri: DataTypes.STRING(255),
+  code_challenge: DataTypes.STRING,
+  code_challenge_method: { 
+    type: DataTypes.STRING, 
+    validate: {
+      isIn: [['plain', 'S256']] // Only allow "plain" or "S256"
+    }
+  },
   scope: DataTypes.STRING,
   expires: DataTypes.DATE,
   used: DataTypes.BOOLEAN,
