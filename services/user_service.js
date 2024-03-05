@@ -20,8 +20,9 @@ export const user_service = {
   }, 
 
   login: async ( body ) => {
-    const  { username, password, email, company_id } = body;
-    const user = await User.findOne({ where: sequelize.and({ username: username }, { company_id: company_id } )});
+    const  { username, password, email } = body;
+  
+    const user = await User.findOne({ where: sequelize.and({ username: username }, { email: email } )});
     if (!user) {
       throw new Error('Invalid username, password, or company');
     }
