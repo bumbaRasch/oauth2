@@ -93,7 +93,6 @@ export const company_controller = {
   remove_user_from_company: async (req, res) => {
     try {
       const { uuid, user_uuid } = req.params;
-      console.log(uuid, user_uuid);
       await company_service.remove_user_from_company(uuid, user_uuid);
       res.status(200).json({ message: 'User successfully removed from company' });
     } 
