@@ -22,7 +22,6 @@ export const user_controller = {
   login: async (req, res) => {
     try {
       const { user } = await user_service.login(req.body);
-      console.log(user)
       req.session.user_id = user.user_id;
       req.session.user = user;
       res.redirect('/oidc/consent');
