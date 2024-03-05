@@ -1,3 +1,4 @@
+<!-- views/user_login.ejs -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,13 +7,15 @@
 <body>
     <h1>Login User</h1>
     <form action="/oidc/login" method="post">
-        <div>
-            <label for="username">Username:</label><br>
-            <input type="text" id="username" name="username" required>
-        </div>
+        <label for="username">Username:</label><br>
+        <input type="text" id="username" name="username" required>
         <div>
             <label for="password">Password:</label><br>
             <input type="password" id="password" name="password" required>
+        </div>
+        <div>
+            <label for="email">Email:</label><br>
+            <input type="email" id="email" name="email" required>
         </div>
         <div>
             <input type="submit" value="Login">
