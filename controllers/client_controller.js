@@ -2,6 +2,7 @@
 import Client from '../models/Client.js';
 import crypto from 'crypto';
 import { client_service } from '../services/client_service.js';
+import { company_service } from '../services/company_service.js';
 
 
 export const client_controller = {
@@ -9,7 +10,7 @@ export const client_controller = {
         try {
             const { company_id, name, redirect_uri, grant_types, scope, active } = req.body;
             const client = await client_service.create_client(company_id, name, redirect_uri, grant_types, scope, active);
-            res.status(201).json(client);
+            res.redirect('/oidc/login');
         } 
         catch (error) {
             console.error(error);
