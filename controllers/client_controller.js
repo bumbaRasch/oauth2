@@ -10,13 +10,24 @@ export const client_controller = {
         try {
             let { company_id, name, redirect_uri, grant_types, scope, active } = req.body;
             active = active === 'on' ? true : false;
-    
+
             const client = await client_service.create_client(company_id, name, redirect_uri, grant_types, scope, active);
             res.redirect('/oidc/login');
         } 
         catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Error occurred while creating the client.', error: error.message, stack: error.stack });
+        }
+    },
+
+    register_client: async (req, res, next) => {
+        try {
+            const companies = await company_service.get_companies();
+            const selected_company_id = req.query.company_id;
+            res.render('register_client', { companies, selected_company_id });
+        } 
+        catch (error) {
+            res.status(500).send(error.message);
         }
     },
 
