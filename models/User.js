@@ -69,17 +69,28 @@ User.init({
   createdAt: 'created_at',
   updatedAt: 'updated_at',
   hooks: {
-    // Hash the password before saving the user
     beforeCreate: async (user) => {
       if (user.changed('password')) {
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(user.password, salt);
+        try {
+          const salt = await bcrypt.genSalt(10);
+          user.password = await bcrypt.hash(user.password, salt);
+        } 
+        catch (error) {
+          console.error('Error hashing password', error);
+          throw error;
+        }
       }
     },
     beforeUpdate: async (user) => {
       if (user.changed('password')) {
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(user.password, salt);
+        try {
+          const salt = await bcrypt.genSalt(10);
+          user.password = await bcrypt.hash(user.password, salt);
+        } 
+        catch (error) {
+          console.error('Error hashing password', error);
+          throw error;
+        }
       }
     }
   },
