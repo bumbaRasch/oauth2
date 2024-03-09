@@ -5,8 +5,19 @@ import User from '../models/User.js';
 import sequelize from '../models/sequelize.js';
 import { request_password_reset, reset_password } from '../services/user_service.js';
 import { user_service } from '../services/user_service.js';
+import { company_service } from '../services/company_service.js';
 
 export const user_controller = {
+  get_user_register: async (req, res, next) => {
+      try {
+          const companies = await company_service.get_companies();
+          res.render('register_user', { companies });
+      } 
+      catch (error) {
+          res.status(500).json({ error: error.message });
+      }
+  },
+
   register: async (req, res) => {
     try {
       const user = await user_service.register(req.body);
@@ -17,6 +28,10 @@ export const user_controller = {
     catch (error) {
       res.status(400).json({ error: error.message });
     }
+  },
+
+  get_user_login: async (req, res) => {
+    res.render('user_login');
   },
 
   login: async (req, res) => {

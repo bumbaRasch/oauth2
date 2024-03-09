@@ -12,20 +12,10 @@ import { auth_middleware } from '../middlewares/auth_middleware.js';
 const router = express.Router();
 
 
-router.get('/oidc/register', async (req, res) => {
-    try {
-        const companies = await company_service.get_companies();
-        res.render('register_user', { companies });
-    } 
-    catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+router.get('/oidc/register', user_controller.get_user_register);
 router.post('/oidc/register', validation_middleware.validate_registration_input ,user_controller.register);
 
-router.get('/oidc/login', (req, res) => {
-    res.render('user_login');
-})
+router.get('/oidc/login', user_controller.get_user_login);
 router.post('/oidc/login', user_controller.login)
 
 
@@ -41,7 +31,7 @@ router.get('/oidc/consent', auth_middleware.authenticate, async (req, res) => {
         const code_challenge_method = 'S256'; // Or 'plain', depending on your implementation
 
         // Render the consent page with the client data
-        res.render('consent', { client, state, code_challenge, code_challenge_method});
+        res.render('consent', { client, state, code_challenge, code_challenge_method });
     } 
     catch (error) {
         res.status(500).json({ error: error.message });
