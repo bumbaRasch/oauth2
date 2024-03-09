@@ -9,9 +9,7 @@ import { user_middleware } from '../middlewares/user_middleware.js';
 
 const router = express.Router();
 
-router.get('/register/company', function(req, res) {
-    res.render('register_company');
-});
+router.get('/register/company', company_controller.register_company);
 
 router.post('/register/company', validation_middleware.validate_registration_input, company_controller.create);
 router.get('/companies', auth_middleware.authenticate_user, auth_middleware.authorize_roles(['admin']), company_controller.get_companies);

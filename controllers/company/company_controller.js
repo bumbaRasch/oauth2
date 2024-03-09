@@ -2,6 +2,16 @@
 import { company_service } from '../../services/company_service.js';
 
 export const company_controller = {
+  // GET
+  register_company: async (req, res) => {
+    try {
+      res.render('register_company');
+    }
+    catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   create: async (req, res) => {
       try {
         const company = await company_service.create(req.body);
