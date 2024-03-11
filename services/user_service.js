@@ -6,6 +6,8 @@ import sequelize from '../models/sequelize.js';
 import jwt from 'jsonwebtoken';
 import { generate_random_string } from "../utils/generate.js";
 import { company_service_helpers } from '../helpers/company_service_helpers.js';
+import Client  from '../models/Client.js';
+import { Op } from 'sequelize';
 
 export const user_service = {
   register: async (body) => {
@@ -21,7 +23,6 @@ export const user_service = {
 
   login: async ( body ) => {
     const  { username, password, email } = body;
-  
     const user = await User.findOne({ where: sequelize.and({ username: username }, { email: email } )});
     if (!user) {
       throw new Error('Invalid username, password, or company');
@@ -35,6 +36,30 @@ export const user_service = {
     await user.save();
     const token = jwt.sign({ user_id: user.user_id, company_id: user.company_id }, user.secret_key, { expiresIn: process.env.JWT_TTL || '1h' });
     return { user, token };
+  },
+
+  get_consent_data: async (user) => {
+    const client = await Client.findOne({ where: { [Op.and]: [{ company_id: user.company_id }, { active: true }] } });
+    const state = generate_random_string(16);
+    const code_challenge = generate_random_string(32);
+    const code_challenge_method = 'S256'; // Or 'plain', depending on your implementation
+
+    return { client, state, code_challenge, code_challenge_method };
+  },
+
+  generate_authorization_params: (body) => {
+    const params = new URLSearchParams({
+      client_id: body.client_id,
+      redirect_uri: body.redirect_uri,
+      response_type: body.response_type,
+      state: body.state,
+      scope: body.scope,
+      code_challenge: body.code_challenge,
+      code_challenge_method: body.code_challenge_method,
+      // Add any other parameters required by your authorization endpoint
+    });
+
+    return params.toString();
   },
 
   verifyMfa: async (body) => {

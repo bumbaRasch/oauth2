@@ -46,13 +46,25 @@ export const user_controller = {
     }
   },
 
-  consent: async (req, res) => {
+  get_consent: async (req, res, next) => {
     try {
-      // Display the consent page to the user
-      res.render('consent');
+      const user = req.session.user;
+      const consent_data = await user_service.get_consent_data(user);
+      res.render('consent', consent_data);
+      
     } 
     catch (error) {
-      res.status(500).json({ error: error.message });
+      next(error);
+    }
+  },
+
+  post_consent: async (req, res, next) => {
+    try {
+      const params = user_service.generate_authorization_params(req.body);
+      res.redirect(`/oidc/authorize?${params}`);
+    }
+    catch (error) {
+      next(error);
     }
   },
 

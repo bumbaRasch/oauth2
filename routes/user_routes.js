@@ -1,6 +1,5 @@
 // routes/auth_routes.js
 import express from 'express';
-import { Op } from 'sequelize';
 import { validation_middleware } from '../middlewares/validation_middleware.js';
 import { auth_controller } from '../controllers/auth_controller.js';
 import { user_controller } from '../controllers/user_controller.js';
@@ -19,44 +18,9 @@ router.get('/oidc/login', user_controller.get_user_login);
 router.post('/oidc/login', user_controller.login)
 
 
-router.get('/oidc/consent', auth_middleware.authenticate, async (req, res) => {
-    try {
-        const user = req.session.user;
-       
-        // Get the active client associated with the same company as the user
-        const client = await Client.findOne({ where: { [Op.and]: [{ company_id: user.company_id }, { active: true }]}});
-        
-        const state = generate_random_string(16);
-        const code_challenge = generate_random_string(32);
-        const code_challenge_method = 'S256'; // Or 'plain', depending on your implementation
+router.get('/oidc/consent', auth_middleware.authenticate, user_controller.get_consent);
 
-        // Render the consent page with the client data
-        res.render('consent', { client, state, code_challenge, code_challenge_method });
-    } 
-    catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-router.post('/oidc/consent', async (req, res) => {
-    try {
-        // Redirect the user to the authorization endpoint with the necessary parameters
-        const params = new URLSearchParams({
-            client_id: req.body.client_id,
-            redirect_uri: req.body.redirect_uri,
-            response_type: req.body.response_type,
-            state: req.body.state,
-            scope: req.body.scope,
-            code_challenge: req.body.code_challenge, // Add this line
-            code_challenge_method: req.body.code_challenge_method, // Add this line
-            // Add any other parameters required by your authorization endpoint
-        });
-        res.redirect(`/oidc/authorize?${params}`);
-    } 
-    catch (error) {
-        res.status(400).json({ error: error.message });
-    }
-});
+router.post('/oidc/consent', auth_middleware.authenticate, user_controller.post_consent);
 
 router.get('/callback', token_controller.exchange_code_for_token);
 
