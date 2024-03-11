@@ -17,7 +17,17 @@ router.post('/oidc/consent', auth_middleware.authenticate, user_controller.post_
 router.get('/callback', auth_middleware.authenticate, token_controller.exchange_code_for_token);
 
 
+// // Revocation Endpoint: Это конечная точка, которую клиенты могут использовать для отзыва токенов доступа или обновления. Это может быть полезно для улучшения безопасности, особенно в случае, если токен доступа утрачен или украден.
+// router.post('/oidc/revoke', auth_middleware.authenticate, token_controller.revoke_token);
 
+// // Introspection Endpoint: Это конечная точка, которую клиенты могут использовать для получения информации о токене доступа. Это может быть полезно для проверки состояния токена и его свойств.
+// router.post('/oidc/introspect', auth_middleware.authenticate, token_controller.introspect_token);
+
+// // User Info Endpoint: Это конечная точка, которую клиенты могут использовать для получения информации о пользователе, связанной с токеном доступа. Это может быть полезно для получения информации о пользователе без необходимости запроса к вашему основному API.
+// router.get('/oidc/userinfo', auth_middleware.authenticate, user_controller.user_info);
+
+// // JWKS Endpoint: Это конечная точка, которую клиенты могут использовать для получения открытого ключа для проверки подписи JWT.
+// router.get('/.well-known/jwks.json', auth_controller.jwks);
 
 router.post('/logout', user_controller.logout);
 router.post('/password-reset', user_controller.request_password_reset);
