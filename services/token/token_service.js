@@ -2,6 +2,7 @@
 import jwt from 'jsonwebtoken';
 import Client from '../../models/Client.js';
 import AuthorizationCode from '../../models/AuthorizationCode.js';
+import User from '../../models/User.js';
 
 
 export const token_service = {
@@ -14,6 +15,49 @@ export const token_service = {
             return false;
         }
     },
+
+    check_token: async (auth_header, token) => {
+        if (!auth_header) {
+            throw { status: 400, message: 'Authorization header is required' };
+        }
+
+        const auth_parts = auth_header.split(' ');
+
+        if(auth_parts.length !== 2 || auth_parts[0] !== 'Basic') {
+            throw { status: 400, message: 'Invalid authorization header format. Format is "Basic base64encoded(client_id:client_secret)"' };
+        }
+
+        const [client_id, client_secret] = Buffer.from(auth_parts[1], 'base64').toString().split(':');
+
+        const client = await Client.findOne({ where: { client_id: client_id, client_secret: client_secret } });
+        if (!client) {
+            throw { status: 401, message: 'Invalid client credentials' };
+        }
+
+        const decoded = jwt.decode(token);
+
+        if (!decoded) {
+            throw { status: 400, message: 'Invalid token' };
+        }
+
+        const user_id = decoded.user_id;
+
+        const user = await User.findByPk(user_id);
+
+        if (!user) {
+            throw { status: 404, message: 'User not found' };
+        }
+
+        const is_valid = this.verify_token(token);
+
+        if (is_valid) {
+            return { active: true };
+        } 
+        else {
+            throw { status: 401, message: 'Invalid token' };
+        }
+    },
+
     exchange_code_for_token: async (code, client_id, client_secret, redirect_uri) => {
         // Validate the input
         if (!code || !client_id || !client_secret || !redirect_uri) {

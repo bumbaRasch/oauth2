@@ -8,53 +8,12 @@ import AuthorizationCode from '../../models/AuthorizationCode.js';
 export const token_controller = {
     // Basic authentication
     check_token: async (req, res) => {
-        const auth_header = req.headers.authorization;
-
-        if (!auth_header) {
-            return res.status(400).json({ error: 'Authorization header is required' });
-        }
-
-        const auth_parts = auth_header.split(' ');
-
-        if(auth_parts.length !== 2 || auth_parts[0] !== 'Basic') {
-            return res.status(400).json({ error: 'Invalid authorization header format. Format is "Basic base64encoded(client_id:client_secret)"' });
-        }
-
-        const [client_id, client_secret] = Buffer.from(auth_parts[1], 'base64').toString().split(':');
-       
-        
-
-        // Проверяем учетные данные клиента
-        const client = await Client.findOne({ where: { client_id: client_id, client_secret: client_secret } });
-        
-        if (!client) {
-            return res.status(401).json({ error: 'Invalid client credentials' });
-        }
-
-        const token = req.body.token;
-
-        const decoded = jwt.decode(token);
-
-        if (!decoded) {
-            return res.status(400).json({ error: 'Invalid token' });
-        }
-
-        const user_id = decoded.user_id;
-
-        const user = await User.findByPk(user_id);
-
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-
-        
-        const is_valid = await token_service.verify_token(token, user.secret_key);
-
-        if (is_valid) {
-            res.status(200).json({ active: true });
+        try {
+            const result = await token_service.check_token(req.headers.authorization, req.body.token);
+            res.status(200).json(result);
         } 
-        else {
-            res.status(401).json({ active: false });
+        catch (error) {
+            res.status(error.status || 500).json({ error: error.message });
         }
     },
 
@@ -62,7 +21,6 @@ export const token_controller = {
     exchange_code_for_token: async (req, res) => {
 
         const { code, state,} =  req.query;
-       
         const auth_code = await AuthorizationCode.findOne({ where: { authorization_code: code } });
         if (!auth_code) {
             return res.status(400).json({ error: 'Authorization code not found' });
@@ -74,7 +32,6 @@ export const token_controller = {
 
         try {
             const { token, refreshToken } = await token_service.exchange_code_for_token(code, client.client_id, client.client_secret, client.redirect_uri);
-
             // Render the callback view with the access token and state
             res.render('callback', { access_token: token, state, refreshToken: refreshToken });
             // Send email to user !

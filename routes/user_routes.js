@@ -13,15 +13,10 @@ const router = express.Router();
 
 router.get('/oidc/register', user_controller.get_user_register);
 router.post('/oidc/register', validation_middleware.validate_registration_input ,user_controller.register);
-
 router.get('/oidc/login', user_controller.get_user_login);
 router.post('/oidc/login', user_controller.login)
-
-
 router.get('/oidc/consent', auth_middleware.authenticate, user_controller.get_consent);
-
 router.post('/oidc/consent', auth_middleware.authenticate, user_controller.post_consent);
-
 router.get('/callback', token_controller.exchange_code_for_token);
 
 
