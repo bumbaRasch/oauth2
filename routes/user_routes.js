@@ -3,10 +3,7 @@ import express from 'express';
 import { validation_middleware } from '../middlewares/validation_middleware.js';
 import { auth_controller } from '../controllers/auth_controller.js';
 import { user_controller } from '../controllers/user_controller.js';
-import { token_controller } from '../controllers/token/token_controller.js'; // import the token controller
-import { company_service } from '../services/company_service.js';
-import Client  from '../models/Client.js';
-import { generate_random_string } from '../utils/generate.js';
+import { token_controller } from '../controllers/token/token_controller.js';
 import { auth_middleware } from '../middlewares/auth_middleware.js';
 const router = express.Router();
 
@@ -17,7 +14,7 @@ router.get('/oidc/login', user_controller.get_user_login);
 router.post('/oidc/login', user_controller.login)
 router.get('/oidc/consent', auth_middleware.authenticate, user_controller.get_consent);
 router.post('/oidc/consent', auth_middleware.authenticate, user_controller.post_consent);
-router.get('/callback', token_controller.exchange_code_for_token);
+router.get('/callback', auth_middleware.authenticate, token_controller.exchange_code_for_token);
 
 
 
