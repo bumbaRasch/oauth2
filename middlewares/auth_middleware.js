@@ -12,7 +12,6 @@ export const auth_middleware = {
       if (req.session && req.session.user_id) {
        
         const user = await User.findByPk(req.session.user_id);
-       
         
         if (user) {
             res.locals.user = user; // Save user in res.locals
@@ -63,7 +62,7 @@ export const auth_middleware = {
       if (!client) {
         return res.status(401).json({ error: 'Client not found' });
       }
-     
+
       let is_valid;
       try {
         is_valid = await verify_token_with_authorization_server(token,client.client_id, client.client_secret);
@@ -71,7 +70,6 @@ export const auth_middleware = {
       catch (err) {
         return res.status(500).json({ error: 'Failed to verify token with authorization server' });
       }
-     
 
       if (!is_valid) {
         return res.status(401).json({ error: 'Invalid or expired token' });
