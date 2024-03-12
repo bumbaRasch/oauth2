@@ -10,7 +10,7 @@ RefreshToken.init({
     primaryKey: true,
     autoIncrement: true,
   },
-  refresh_token: DataTypes.STRING(255),
+  refresh_token: DataTypes.TEXT,
   expires: DataTypes.DATE,
 }, { sequelize, modelName: 'RefreshToken' });
 

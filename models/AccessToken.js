@@ -9,7 +9,7 @@ AccessToken.init({
     defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
   },
-  access_token: DataTypes.STRING(255),
+  access_token: DataTypes.TEXT,
   expires: DataTypes.DATE,
 }, { sequelize, modelName: 'AccessToken' });
 

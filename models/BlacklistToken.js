@@ -9,7 +9,7 @@ BlacklistToken.init({
     defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
   },
-  token: DataTypes.STRING(255),
+  token: DataTypes.TEXT,
 }, { sequelize, modelName: 'Blacklist' });
 
 export default BlacklistToken;
