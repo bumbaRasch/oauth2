@@ -78,7 +78,13 @@ export const token_controller = {
 
     revoke_token: async (req, res) => {
         try {
-            await token_service.revoke_token(req.body.token);
+            const auth_header = req.header('Authorization');
+            if (!auth_header) {
+                return res.status(401).json({ error: 'Authorization header is required' });
+            }
+
+            const token = auth_header.replace('Bearer ', '');        
+            await token_service.revoke_token(token);
             res.status(200).json({ message: 'Token revoked successfully' });
         } 
         catch (error) {
