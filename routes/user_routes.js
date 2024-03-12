@@ -12,19 +12,19 @@ router.get('/oidc/register', user_controller.get_user_register);
 router.post('/oidc/register', validation_middleware.validate_registration_input ,user_controller.register);
 router.get('/oidc/login', user_controller.get_user_login);
 router.post('/oidc/login', user_controller.login)
-router.get('/oidc/consent', auth_middleware.authenticate, user_controller.get_consent);
-router.post('/oidc/consent', auth_middleware.authenticate, user_controller.post_consent);
-router.get('/callback', auth_middleware.authenticate, token_controller.exchange_code_for_token);
+router.get('/oidc/consent', auth_middleware.authenticate_session, user_controller.get_consent);
+router.post('/oidc/consent', auth_middleware.authenticate_session, user_controller.post_consent);
+router.get('/callback', auth_middleware.authenticate_session, token_controller.exchange_code_for_token);
 
 
 // // Revocation Endpoint: Это конечная точка, которую клиенты могут использовать для отзыва токенов доступа или обновления. Это может быть полезно для улучшения безопасности, особенно в случае, если токен доступа утрачен или украден.
-// router.post('/oidc/revoke', auth_middleware.authenticate, token_controller.revoke_token);
+router.post('/oidc/revoke', auth_middleware.authenticate_user_with_token, token_controller.revoke_token);
 
 // // Introspection Endpoint: Это конечная точка, которую клиенты могут использовать для получения информации о токене доступа. Это может быть полезно для проверки состояния токена и его свойств.
-// router.post('/oidc/introspect', auth_middleware.authenticate, token_controller.introspect_token);
+// router.post('/oidc/introspect', auth_middleware.authenticate_user_with_token, token_controller.introspect_token);
 
 // // User Info Endpoint: Это конечная точка, которую клиенты могут использовать для получения информации о пользователе, связанной с токеном доступа. Это может быть полезно для получения информации о пользователе без необходимости запроса к вашему основному API.
-// router.get('/oidc/userinfo', auth_middleware.authenticate, user_controller.user_info);
+// router.get('/oidc/userinfo', auth_middleware.authenticate_user_with_token, user_controller.user_info);
 
 // // JWKS Endpoint: Это конечная точка, которую клиенты могут использовать для получения открытого ключа для проверки подписи JWT.
 // router.get('/.well-known/jwks.json', auth_controller.jwks);
