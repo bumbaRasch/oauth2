@@ -7,7 +7,7 @@ import { auth_service } from '../services/auth_service.js';
 import { verify_token_with_authorization_server } from '../utils/verify_token_with_authorization_server.js';
 
 export const auth_middleware = {
-  authenticate: async (req, res, next) => {
+  authenticate_session: async (req, res, next) => {
     try {
       if (req.session && req.session.user_id) {
        
@@ -30,7 +30,7 @@ export const auth_middleware = {
     }
   },
   
-    authenticate_user: async (req, res, next) => {
+    authenticate_user_with_token: async (req, res, next) => {
     try {
       const auth_header = req.header('Authorization');
       if (!auth_header) {
@@ -39,7 +39,6 @@ export const auth_middleware = {
 
       const token = auth_header.replace('Bearer ', '');
      
-      console.log('token', token);
       let decoded;
       try {
         decoded = jwt.decode(token);
