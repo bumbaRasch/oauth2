@@ -6,6 +6,19 @@ import Client from '../../models/Client.js';
 import AuthorizationCode from '../../models/AuthorizationCode.js';
 
 export const token_controller = {
+    verify_token: async (req, res, next) => {
+        const token = req.headers['authorization'].split(' ')[1]; // Extract the token from the 'Authorization' header
+
+        const is_valid = await token_service.verify_token(token);
+
+        if (is_valid) {
+            next();
+        } 
+        else {
+            res.status(401).json({ message: 'Token is invalid or expired' });
+        }
+    },
+
     // Basic authentication
     check_token: async (req, res) => {
         try {
@@ -60,6 +73,16 @@ export const token_controller = {
         } 
         catch (err) {
             res.status(500).json({ error: err.message });
+        }
+    },
+
+    revoke_token: async (req, res) => {
+        try {
+            await token_service.revoke_token(req.body.token);
+            res.status(200).json({ message: 'Token revoked successfully' });
+        } 
+        catch (error) {
+            res.status(error.status || 500).json({ error: error.message });
         }
     },
 };

@@ -3,11 +3,17 @@ import jwt from 'jsonwebtoken';
 import Client from '../../models/Client.js';
 import AuthorizationCode from '../../models/AuthorizationCode.js';
 import User from '../../models/User.js';
+import BlacklistToken from '../../models/BlacklistToken.js';
 
 
 export const token_service = {
     verify_token: async (token) => {
         try {
+            const blacklisted_token = await BlacklistToken.findOne({ where: { token: token } });
+
+            if (blacklisted_token) {
+                throw new Error('Token has been revoked');
+            }
             jwt.verify(token, process.env.JWT_SECRET);
             return true;
         } 
@@ -48,7 +54,7 @@ export const token_service = {
             throw { status: 404, message: 'User not found' };
         }
 
-        const is_valid = this.verify_token(token);
+        const is_valid = token_service.verify_token(token);
 
         if (is_valid) {
             return { active: true };
@@ -104,4 +110,11 @@ export const token_service = {
             throw new Error('Invalid refresh token');
         }
     },
+
+    revoke_token: async (token) => {
+        await BlacklistToken.create({ token: token });
+
+        return true;
+    },
+    
 };
