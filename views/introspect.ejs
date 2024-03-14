@@ -1,0 +1,14 @@
+<!-- views/introspect.ejs -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Introspect Token</title>
+</head>
+<body>
+    <h1>Token Introspection</h1>
+    <p>Token is active: <%= active ? 'Yes' : 'No' %></p>
+    <p>Token issued at: <%= new Date(issued_at * 1000).toLocaleString() %></p>
+    <p>Token expires at: <%= expires_at.toLocaleString() %></p>
+    <p>User ID: <%= user_id %></p>
+</body>
+</html>

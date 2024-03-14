@@ -1,6 +1,8 @@
 // services/auth_service.js
 import Client from '../models/Client.js';
 import AuthorizationCode from '../models/AuthorizationCode.js';
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
 
 
 export const auth_service = {
@@ -68,8 +70,28 @@ export const auth_service = {
             code_challenge_method: code_challenge_method, // Add this line
         });
 
-        console.log('code', code);
-
         return code;
-    }
+    },
+
+    introspect_token: async (token) => {
+        if (!token) {
+        throw new Error('Token is required');
+        }
+        
+        const decoded = jwt.decode(token, { complete: true });
+    
+        if (!decoded) {
+            throw new Error('Invalid token');
+        }
+    
+        const user_id = decoded.payload.user_id;
+    
+        const user = await User.findByPk(user_id);
+    
+        if (!user) {
+            throw new Error('User not found');
+        }
+    
+        return { user, decoded };
+    },
 }

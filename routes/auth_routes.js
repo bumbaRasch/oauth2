@@ -14,4 +14,7 @@ router.post('/oidc/token', auth_middleware.authenticate_session, token_controlle
 router.post('/oidc/check_token', token_controller.check_token);
 router.post('/oidc/refresh_token', auth_middleware.authenticate_session, token_controller.refresh_token);
 
+router.post('/oidc/introspect', auth_middleware.authenticate_user_with_token, auth_controller.authenticate_and_set_user, auth_controller.introspect_token);
+router.get('/oidc/introspect_token_info', auth_middleware.authenticate_user_with_token, auth_controller.authenticate_and_set_user, auth_controller.introspect_token_info);
+
 export default router;
