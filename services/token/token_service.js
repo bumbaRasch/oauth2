@@ -10,7 +10,7 @@ export const token_service = {
     verify_token: async (token) => {
         try {
             const blacklisted_token = await BlacklistToken.findOne({ where: { token: token } });
-            
+
             if (blacklisted_token) {
                 throw new Error('Token has been revoked');
             }
@@ -99,11 +99,11 @@ export const token_service = {
 
     refresh_token: async (refresh_token) => {
         try {
-            const decoded = jwt.verify(refresh_token, process.env.REFRESH_TOKEN_SECRET);
-            const user_id = decoded.user_id;
+            const decoded    = jwt.verify(refresh_token, process.env.REFRESH_TOKEN_SECRET);
+            const user_id    = decoded.user_id;
             const company_id = decoded.company_id;
 
-            const newToken = jwt.sign({ user_id: user_id, company_id: company_id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_TTL || '1h' });
+            const newToken        = jwt.sign({ user_id: user_id, company_id: company_id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_TTL || '1h' });
             const newRefreshToken = jwt.sign({ user_id: user_id, company_id: company_id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
 
             return { access_token: newToken, refresh_token: newRefreshToken };
@@ -115,9 +115,9 @@ export const token_service = {
 
     revoke_token: async (token) => {
         try {
-            const existingToken = await BlacklistToken.findOne({ where: { token: token } });
+            const existing_token = await BlacklistToken.findOne({ where: { token: token } });
     
-            if (!existingToken) {
+            if (!existing_token) {
                 await BlacklistToken.create({ token: token });
             }
     
