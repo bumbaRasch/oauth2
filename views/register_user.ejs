@@ -19,12 +19,12 @@
             <input type="email" id="email" name="email" required>
         </div>
         <div>
-            <label for="company">Company:</label><br>
-            <select id="company_id" name="company_id">
-                <% companies.forEach(company => { %>
-                    <option value="<%= company.company_id %>"><%= company.name %></option>
-                <% }); %>
-            </select>
+            <label for="company_name">Company Name:</label><br>
+            <input type="text" id="company_name" name="company_name" required>
+        </div>
+        <div>
+            <label for="company_id">Company ID:</label><br>
+            <input type="text" id="company_id" name="company_id" required>
         </div>
         <div>
             <input type="submit" value="Register">

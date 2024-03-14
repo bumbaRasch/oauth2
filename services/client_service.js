@@ -25,7 +25,7 @@ export const client_service = {
 
         const password = generate_random_string(16);
         const client_secret = await company_service_helpers.hash_password(password);
-        const client = await Client.create({ client_secret, company_id, name, redirect_uri, grant_types, scope, active });
+        const client = await Client.create({ client_secret, company_id, name, redirect_uri, grant_types, scope, active, last_active: new Date() });
         await client.save();
         return { client_id: client.client_id, client_secret: client.client_secret, company_id: client.company_id, name: client.name, redirect_uri: client.redirect_uri, grant_types: client.grant_types, scope: client.scope, active: client.active };
     },

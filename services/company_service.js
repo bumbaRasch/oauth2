@@ -17,8 +17,9 @@ export const company_service = {
       if (existing_company) {
         throw new Error('Company with this email already exists');
       }
-          const created = await Company.create({ name, password, email });
-          return created; // return only the created company
+        const company_created = await Company.create({ name, password, email, last_active: new Date() });
+        await company_created.save();
+        return company_created; // return only the created company
     } 
     catch (error) {
       throw new Error('Error creating company: ' + error.message);
