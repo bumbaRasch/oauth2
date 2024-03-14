@@ -8,10 +8,10 @@ import { company_service } from '../services/company_service.js';
 export const client_controller = {
     create_client: async (req, res) => {
         try {
-            let { company_id, name, redirect_uri, grant_types, scope, active } = req.body;
+            let { name, redirect_uri, grant_types, scope, active, company_name, company_id } = req.body;
             active = active === 'on' ? true : false;
-
-            const client = await client_service.create_client(company_id, name, redirect_uri, grant_types, scope, active);
+            console.log(req.body)
+            const client = await client_service.create_client(name, redirect_uri, grant_types, scope, active, company_name, company_id );
             res.redirect('/oidc/login');
         } 
         catch (error) {
