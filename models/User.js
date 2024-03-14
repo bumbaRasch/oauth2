@@ -62,6 +62,10 @@ User.init({
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW
   },
+  last_active: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
 }, {
   sequelize,
   modelName: 'User',

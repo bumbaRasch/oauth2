@@ -74,6 +74,10 @@ export const auth_middleware = {
         return res.status(401).json({ error: 'Invalid or expired token' });
       }
 
+      // Update last active timestamp for the user
+      user.last_active = new Date();
+      await user.save();
+
       req.user = user;
       next();
     } 
