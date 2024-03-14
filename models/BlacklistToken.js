@@ -14,6 +14,6 @@ BlacklistToken.init({
     type: DataTypes.DATE,
     allowNull: true,
   },
-}, { sequelize, modelName: 'Blacklist' });
+}, { sequelize, modelName: 'BlacklistToken' });
 
 export default BlacklistToken;
