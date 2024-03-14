@@ -1,25 +1,38 @@
 // service/company_service.js
 import Company  from '../models/Company.js';
-import bcrypt from 'bcryptjs';
+
 import company_service_helpers from '../helpers/company_service_helpers.js';
+import { email_service } from './email/email_service.js';
+import sequelize  from '../models/sequelize.js';
 import User from '../models/User.js';
 import Client from '../models/Client.js';
 
 export const company_service = {
   create: async (body) => {
     const { name, password, email } = body;
+
     if (!name || !password || !email) {
       throw new Error('Company name, email, and password are required');
     }
+
+    // Start a transaction
+    const transaction = await sequelize.transaction();
+
     try {
       // Check if company already exists
       const existing_company = await Company.findOne({ where: { email } });
       if (existing_company) {
         throw new Error('Company with this email already exists');
       }
-        const company_created = await Company.create({ name, password, email, last_active: new Date() });
-        await company_created.save();
-        return company_created; // return only the created company
+      const company_created = await Company.create({ name, password, email, last_active: new Date() });
+      await company_created.save();
+
+      await email_service.send_email(email, 'Company Created', `Your company has been created with ID: ${company_created.company_id}`);
+
+      // Commit the transaction
+      await transaction.commit();
+
+      return company_created;
     } 
     catch (error) {
       throw new Error('Error creating company: ' + error.message);
