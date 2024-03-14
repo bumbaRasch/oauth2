@@ -10,7 +10,7 @@ export const token_service = {
     verify_token: async (token) => {
         try {
             const blacklisted_token = await BlacklistToken.findOne({ where: { token: token } });
-
+            
             if (blacklisted_token) {
                 throw new Error('Token has been revoked');
             }
@@ -22,6 +22,8 @@ export const token_service = {
         }
     },
 
+
+    // Basic authentication
     check_token: async (auth_header, token) => {
         if (!auth_header) {
             throw { status: 400, message: 'Authorization header is required' };
@@ -54,7 +56,7 @@ export const token_service = {
             throw { status: 404, message: 'User not found' };
         }
 
-        const is_valid = token_service.verify_token(token);
+        const is_valid = await token_service.verify_token(token);
 
         if (is_valid) {
             return { active: true };
@@ -112,9 +114,19 @@ export const token_service = {
     },
 
     revoke_token: async (token) => {
-        await BlacklistToken.create({ token: token });
-
-        return true;
+        try {
+            const existingToken = await BlacklistToken.findOne({ where: { token: token } });
+    
+            if (!existingToken) {
+                await BlacklistToken.create({ token: token });
+            }
+    
+            return true;
+        } 
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to revoke token');
+        }
     },
     
 };
