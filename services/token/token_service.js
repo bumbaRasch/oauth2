@@ -10,7 +10,7 @@ export const token_service = {
     verify_token: async (token) => {
         try {
             const blacklisted_token = await BlacklistToken.findOne({ where: { token: token } });
-
+            
             if (blacklisted_token) {
                 throw new Error('Token has been revoked');
             }
@@ -118,7 +118,7 @@ export const token_service = {
             const existing_token = await BlacklistToken.findOne({ where: { token: token } });
     
             if (!existing_token) {
-                await BlacklistToken.create({ token: token });
+                await BlacklistToken.create({ token: token, last_active: new Date()});
             }
     
             return true;
