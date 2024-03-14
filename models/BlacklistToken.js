@@ -10,6 +10,10 @@ BlacklistToken.init({
     primaryKey: true,
   },
   token: DataTypes.TEXT,
+  last_active: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
 }, { sequelize, modelName: 'Blacklist' });
 
 export default BlacklistToken;

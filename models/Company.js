@@ -48,6 +48,10 @@ Company.init({
     type: DataTypes.UUID,
     allowNull: true
   },
+  last_active: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
 }, { 
   sequelize, 
   modelName: 'Company',
