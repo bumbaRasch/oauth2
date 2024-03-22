@@ -17,7 +17,7 @@ export const email_service = {
         });
 
         const mailOptions = {
-            from: '"Vasy Pupok" <vasyp>', // sender address
+            from: '"Vasy Pupok" <vasyp@example.com>', // sender address
             to: email, 
             subject: subject, 
             text: text, 
