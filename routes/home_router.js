@@ -1,4 +1,4 @@
-// routes/company_routes.js
+// routes/home_router.js
 import express from 'express';
 
 const router = express.Router();
