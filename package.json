@@ -1,13 +1,14 @@
 {
-  "name": "mid_authorize_server",
+  "name": "authorize_server",
   "version": "0.0.1",
   "description": "",
   "main": "app.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon ./oidc-server.js"
+    "start": "nodemon ./oidc-server.js",
+    "start_app": "nodemon ./app.js"
   },
-  "author": "MID",
+  "author": "Dimitri Pisarev",
   "license": "ISC",
   "dependencies": {
     "axios": "^1.6.7",
