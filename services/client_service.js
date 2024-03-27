@@ -12,19 +12,15 @@ export const client_service = {
             if (!company_id) {
                 throw new Error('company_id is required');
             }
-
             // Check if the company exists
             const company = await Company.findByPk(company_id);
             if (!company) {
                 throw new Error('Company not found');
             }
-
-            console.log('company',name, redirect_uri, grant_types, scope, active, company_name, company_id);
             // Check if the company name matches the provided company_name
             if (company.name != company_name) {
                 throw new Error('Company name does not match the provided company_id');
             }
-
             // Check if a client with the same name or redirect_uri already exists
             const existing_сlient = await Client.findOne({ where: { company_id, [Op.or]: [{ name }, { redirect_uri }] } });
             if (existing_сlient) {
