@@ -3,10 +3,22 @@ import jwt from 'jsonwebtoken';
 import Client from '../../models/Client.js';
 import AuthorizationCode from '../../models/AuthorizationCode.js';
 import User from '../../models/User.js';
+import Company from '../../models/Company.js';
 import BlacklistToken from '../../models/BlacklistToken.js';
 
 
 export const token_service = {
+    get_temp_token: async (company_id) => {
+        const company = await Company.findByPk(company_id);
+
+        if (!company) {
+            throw new Error('Company not found');
+        }
+
+        const temp_token = jwt.sign({ company_id: company_id }, process.env.JWT_SECRET || 'jwt_secret', { expiresIn: process.env.JWT_TTL || '1h' });
+        return temp_token;
+    },
+
     verify_token: async (token) => {
         try {
             const blacklisted_token = await BlacklistToken.findOne({ where: { token: token } });
@@ -14,7 +26,7 @@ export const token_service = {
             if (blacklisted_token) {
                 throw new Error('Token has been revoked');
             }
-            jwt.verify(token, process.env.JWT_SECRET);
+            jwt.verify(token, process.env.JWT_SECRET || 'jwt_secret');
             return true;
         } 
         catch (error) {
@@ -91,7 +103,7 @@ export const token_service = {
         await auth_code.save();
 
         // Create and return the access token
-        const token        = jwt.sign({ user_id: auth_code.user_id, company_id: client.company_id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_TTL || '1h' })
+        const token        = jwt.sign({ user_id: auth_code.user_id, company_id: client.company_id }, process.env.JWT_SECRET || 'jwt_secret', { expiresIn: process.env.JWT_TTL || '1h' })
         const refreshToken = jwt.sign({ user_id: auth_code.user_id, company_id: client.company_id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
 
         return { token, refreshToken };
@@ -103,7 +115,7 @@ export const token_service = {
             const user_id    = decoded.user_id;
             const company_id = decoded.company_id;
 
-            const newToken        = jwt.sign({ user_id: user_id, company_id: company_id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_TTL || '1h' });
+            const newToken        = jwt.sign({ user_id: user_id, company_id: company_id }, process.env.JWT_SECRET || 'jwt_secret', { expiresIn: process.env.JWT_TTL || '1h' });
             const newRefreshToken = jwt.sign({ user_id: user_id, company_id: company_id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
 
             return { access_token: newToken, refresh_token: newRefreshToken };

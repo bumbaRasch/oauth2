@@ -3,9 +3,29 @@ import jwt from 'jsonwebtoken';
 import User from '../../models/User.js';
 import { token_service } from '../../services/token/token_service.js';
 import Client from '../../models/Client.js';
+import Company from '../../models/Company.js';
+
 import AuthorizationCode from '../../models/AuthorizationCode.js';
 
 export const token_controller = {
+    // Temporare token for create a company
+    get_temp_token: async (req, res) => {
+        const { company_id } = req.body;
+
+        if (!company_id) {
+            return res.status(400).json({ error: 'Company ID is required' });
+        }
+
+        const company = await Company.findByPk(company_id);
+
+        if (!company) {
+            return res.status(404).json({ error: 'Company not found' });
+        }
+        
+        const temp_token = await token_service.get_temp_token(company_id);
+        res.json({ temp_token: temp_token });
+    },
+
     verify_token: async (req, res, next) => {
         const token = req.headers['authorization'].split(' ')[1]; // Extract the token from the 'Authorization' header
 

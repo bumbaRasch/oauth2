@@ -13,6 +13,11 @@ const router = express.Router();
 router.get('/register/company', company_controller.register_company);
 
 router.post('/register/company', validation_middleware.validate_registration_input, company_controller.create);
+
+// Temporare token for create a company
+router.post('/get_temp_token', token_controller.get_temp_token);
+
+
 router.get('/companies', token_controller.verify_token, auth_middleware.authenticate_user_with_token, company_controller.get_companies);
 router.get('/companies/:uuid', auth_middleware.authenticate_user_with_token, auth_middleware.authenticate_company, auth_middleware.authorize_company, company_middlewares.company_exists,  company_controller.get_company);
 router.put('/companies/:uuid', auth_middleware.authenticate_user_with_token, auth_middleware.authorize_roles(['admin']), auth_middleware.authorize_permissions(['update_company']), auth_middleware.authenticate_company, auth_middleware.authorize_company, company_middlewares.company_exists,  company_controller.update);
