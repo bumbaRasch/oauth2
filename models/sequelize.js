@@ -3,9 +3,9 @@ import {Sequelize} from 'sequelize';
 
 
 // Initialize Sequelize
-const sequelize = new Sequelize('test_node', 'root', '', {
+const sequelize = new Sequelize('my_app', 'root', '', {
   host: 'localhost',
-  dialect: 'mysql',
+  dialect: 'mariadb',
 });
 
 // Import models and associations
