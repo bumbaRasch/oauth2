@@ -10,9 +10,16 @@ export const client_controller = {
         try {
             let { name, redirect_uri, grant_types, scope, active, company_name, company_id } = req.body;
             active = active === 'on' ? true : false;
-            console.log(req.body)
+
+            const { company_id: cookie_company_id, temp_token: cookie_temp_token } = req.cookies;
+            
+            // Check that the company_id and temp_token match the cookies
+            if (cookie_company_id !== company_id || cookie_temp_token !== req.cookies.temp_token) {
+                return res.status(403).json({ error: 'Unauthorized' });
+            }
+
             const client = await client_service.create_client(name, redirect_uri, grant_types, scope, active, company_name, company_id );
-            res.redirect('/oidc/login');
+            res.redirect(`${redirect_uri || "http://localhost:5000"}/login`);
         } 
         catch (error) {
             console.error(error);
