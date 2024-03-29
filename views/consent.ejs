@@ -7,7 +7,7 @@
 <body>
     <h1>Consent</h1>
     <p>Do you give your consent for the application to access your data?</p>
-    <form action="/oidc/consent" method="post">
+    <form action="/views/oidc/consent" method="post">
         <input type="hidden" name="client_id" value="<%= client.client_id %>">
         <input type="hidden" name="redirect_uri" value="<%= client.redirect_uri %>">
         <input type="hidden" name="response_type" value="code">
