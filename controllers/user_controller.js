@@ -21,7 +21,7 @@ export const user_controller = {
   register: async (req, res) => {
     try {
       const user = await user_service.register(req.body);
-      const redirect_url = req.query.redirect ? decodeURIComponent(req.query.redirect) : '/oidc/login';
+      const redirect_url = req.query.redirect ? decodeURIComponent(req.query.redirect) : '/views/oidc/login';
       req.session.registrationSuccess = true;
       res.redirect(redirect_url);
     } 
@@ -34,12 +34,13 @@ export const user_controller = {
     res.render('user_login');
   },
 
+  //POST
   login: async (req, res) => {
     try {
       const { user } = await user_service.login(req.body);
       req.session.user_id = user.user_id;
       req.session.user = user;
-      res.redirect('/oidc/consent');
+      res.redirect('/views/oidc/consent');
     } 
     catch (error) {
       res.status(400).json({ error: error.message });
