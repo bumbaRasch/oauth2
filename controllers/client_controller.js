@@ -12,7 +12,6 @@ export const client_controller = {
             active = active === 'on' ? true : false;
 
             const { company_id: cookie_company_id, temp_token: cookie_temp_token } = req.cookies;
-            console.log('cookie_company_id', req.cookies);
             
             // Check that the company_id and temp_token match the cookies
             if (cookie_company_id !== company_id || cookie_temp_token !== req.cookies.temp_token) {
