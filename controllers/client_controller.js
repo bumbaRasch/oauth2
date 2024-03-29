@@ -12,6 +12,7 @@ export const client_controller = {
             active = active === 'on' ? true : false;
 
             const { company_id: cookie_company_id, temp_token: cookie_temp_token } = req.cookies;
+            console.log('cookie_company_id', req.cookies);
             
             // Check that the company_id and temp_token match the cookies
             if (cookie_company_id !== company_id || cookie_temp_token !== req.cookies.temp_token) {
@@ -19,7 +20,7 @@ export const client_controller = {
             }
 
             const client = await client_service.create_client(name, redirect_uri, grant_types, scope, active, company_name, company_id );
-            res.redirect(`${redirect_uri || "http://localhost:5000"}/login`);
+            res.redirect(`${ process.env.WEBSITE_URL || 'http://localhost:5000' }/views/choice/user`);
         } 
         catch (error) {
             console.error(error);
@@ -36,7 +37,7 @@ export const client_controller = {
         catch (error) {
             res.status(500).send(error.message);
         }
-    },
+    }, 
 
     get_one_client: async (req, res) => {
         try {
