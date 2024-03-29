@@ -5,21 +5,37 @@ import User from '../models/User.js'; // import your User model
 import sequelize from '../models/sequelize.js';
 import jwt from 'jsonwebtoken';
 import { generate_random_string } from "../utils/generate.js";
-import { company_service_helpers } from '../helpers/company_service_helpers.js';
+import { email_service } from './email/email_service.js';
 import Client  from '../models/Client.js';
 import { Op } from 'sequelize';
 
 export const user_service = {
   register: async (body) => {
-    const { username, password, email, company_id } = body;
-    const existing_user = await User.findOne({ where: sequelize.and({ username: username }, { email: email } )});
-    if(existing_user) {
-      throw new Error('Username or email already in use');
+    try {
+        const { username, password, email, company_id } = body;
+        const existing_user = await User.findOne({ where: sequelize.and({ username: username }, { email: email } )});
+        if(existing_user) {
+            throw new Error('Username or email already in use');
+        }
+        const user = await User.create({ username, password, email, company_id });
+        await user.save();
+
+        const html_content = `
+                <h1>You ${username} was successfully registered.</h1>
+                <img src="https://example.com/path-to-your-logo.png" alt="Our Logo" />
+                <p>Best Regards,</p>
+                <p>Company Name</p>
+            `;
+            
+        await email_service.send_email(email, 'Welcome!', html_content);
+
+        return user;
+    } 
+    catch (error) {
+        console.error(error);
+        throw error;
     }
-    const user = await User.create({ username, password, email, company_id });
-    await user.save();
-    return user;
-  }, 
+  },
 
   login: async ( body ) => {
     const  { username, password, email } = body;
