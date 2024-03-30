@@ -79,19 +79,17 @@ export const token_service = {
     },
 
     exchange_code_for_token: async (code, client_id, client_secret, redirect_uri) => {
-        // Validate the input
+
         if (!code || !client_id || !client_secret || !redirect_uri) {
             throw new Error('code, client_id, client_secret, and redirect_uri are required');
         }
 
-        // Find the client
         const client = await Client.findByPk(client_id);
 
         if (!client || client.client_secret !== client_secret) { 
             throw new Error('Invalid client_id or client_secret');
         }
 
-        // Find the authorization code
         const auth_code = await AuthorizationCode.findOne({ where: { authorization_code: code } });
 
         // redirect_uri must redirect_uri from the client (in Form from created Client)
@@ -99,12 +97,10 @@ export const token_service = {
             throw new Error('Invalid or expired code');
         }
 
-
         auth_code.used = true;        
         await auth_code.save();
 
-        // Create and return the access token
-        const token        = jwt.sign({ user_id: auth_code.user_id, company_id: client.company_id }, process.env.JWT_SECRET || 'jwt_secret', { expiresIn: process.env.JWT_TTL || '1h' })
+        const token         = jwt.sign({ user_id: auth_code.user_id, company_id: client.company_id }, process.env.JWT_SECRET || 'jwt_secret', { expiresIn: process.env.JWT_TTL || '1h' })
         const refresh_token = jwt.sign({ user_id: auth_code.user_id, company_id: client.company_id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
 
         return { token, refresh_token };
@@ -141,5 +137,4 @@ export const token_service = {
             throw new Error('Failed to revoke token');
         }
     },
-    
 };
