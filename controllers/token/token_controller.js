@@ -53,21 +53,10 @@ export const token_controller = {
     // Bearer authentication code exchange to token
     exchange_code_for_token: async (req, res) => {
         const { code, redirect_uri, grant_type } = req.body;
-
         const auth_header = req.headers.authorization;
         const auth_parts = auth_header.split(' ');
 
         const [client_id, client_secret] = Buffer.from(auth_parts[1], 'base64').toString().split(':');
-
-        const auth_code = await AuthorizationCode.findOne({ where: { authorization_code: code } });
-        if (!auth_code) {
-            return res.status(400).json({ error: 'Authorization code not found' });
-        }
-
-        const client = await Client.findByPk(client_id);
-        if (!client || client.client_secret !== client_secret) {
-            return res.status(400).json({ error: 'Client not found or secret does not match' });
-        }
 
         try {
             const { token, refresh_token } = await token_service.exchange_code_for_token(code, client_id, client_secret, redirect_uri);
@@ -75,7 +64,6 @@ export const token_controller = {
             res.cookie('refresh_token', refresh_token, { httpOnly: true, secure: true });
         
             res.status(200).json({ access_token: token, refresh_token: refresh_token });
-            // Send email to user !
         } 
         catch (err) {
             res.status(500).json({ error: err.message });
