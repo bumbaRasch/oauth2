@@ -29,7 +29,7 @@ export const email_service = {
         
             transporter.sendMail(message, async (err, info) => {
                 if (err) {
-                    console.log('Error occurred. ' + err.message);
+                    console.error('Error occurred. ' + err.message);
                     return process.exit(1);
                 }
         
