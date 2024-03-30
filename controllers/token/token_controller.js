@@ -64,9 +64,9 @@ export const token_controller = {
         }
 
         try {
-            const { token, refreshToken } = await token_service.exchange_code_for_token(code, client.client_id, client.client_secret, client.redirect_uri);
+            const { token, refresh_token } = await token_service.exchange_code_for_token(code, client.client_id, client.client_secret, client.redirect_uri);
             // Render the callback view with the access token and state
-            res.render('callback', { access_token: token, state, refreshToken: refreshToken });
+            res.render('callback', { access_token: token, state, refresh_token: refresh_token });
             // Send email to user !
         } 
         catch (err) {
