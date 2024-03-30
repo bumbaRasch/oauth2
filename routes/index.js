@@ -14,7 +14,7 @@ import home_router from './home_router.js';
 // router.use('/', error_routes);
 router.use('/protected', error_routes);
 router.use('/views/', client_routes);
-router.use(user_routes);
+router.use('/views/', user_routes);
 router.use(company_routes);
 router.use(auth_routes); 
 router.use(home_router);

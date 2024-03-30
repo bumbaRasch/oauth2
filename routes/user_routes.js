@@ -8,13 +8,12 @@ import { auth_middleware } from '../middlewares/auth_middleware.js';
 const router = express.Router();
 
 
-router.get('/views/oidc/register', user_controller.get_user_register);
-router.post('/views/oidc/register', validation_middleware.validate_registration_input ,user_controller.register);
-router.get('/views/oidc/login', user_controller.get_user_login);
-router.post('/views/oidc/login', user_controller.login)
-router.get('/views/oidc/consent', auth_middleware.authenticate_session, user_controller.get_consent);
-router.post('/views/oidc/consent', auth_middleware.authenticate_session, user_controller.post_consent);
-router.get('/callback', auth_middleware.authenticate_session, token_controller.exchange_code_for_token);
+router.get('/oidc/register', user_controller.get_user_register);
+router.post('/oidc/register', validation_middleware.validate_registration_input ,user_controller.register);
+router.get('/oidc/login', user_controller.get_user_login);
+router.post('/oidc/login', user_controller.login)
+router.get('/oidc/consent', auth_middleware.authenticate_session, user_controller.get_consent);
+router.post('/oidc/consent', auth_middleware.authenticate_session, user_controller.post_consent);
 
 
 // // Revocation Endpoint: Это конечная точка, которую клиенты могут использовать для отзыва токенов доступа или обновления. Это может быть полезно для улучшения безопасности, особенно в случае, если токен доступа утрачен или украден.
