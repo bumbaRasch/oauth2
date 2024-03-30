@@ -94,19 +94,20 @@ export const token_service = {
         // Find the authorization code
         const auth_code = await AuthorizationCode.findOne({ where: { authorization_code: code } });
 
+        // redirect_uri must redirect_uri from the client (in Form from created Client)
         if (!auth_code || auth_code.redirect_uri !== redirect_uri) { // || auth_code.used || auth_code.expires < new Date()
             throw new Error('Invalid or expired code');
         }
 
-        // Mark the authorization code as used
-        auth_code.used = true;
+
+        auth_code.used = true;        
         await auth_code.save();
 
         // Create and return the access token
         const token        = jwt.sign({ user_id: auth_code.user_id, company_id: client.company_id }, process.env.JWT_SECRET || 'jwt_secret', { expiresIn: process.env.JWT_TTL || '1h' })
-        const refreshToken = jwt.sign({ user_id: auth_code.user_id, company_id: client.company_id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
+        const refresh_token = jwt.sign({ user_id: auth_code.user_id, company_id: client.company_id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
 
-        return { token, refreshToken };
+        return { token, refresh_token };
     },
 
     refresh_token: async (refresh_token) => {
