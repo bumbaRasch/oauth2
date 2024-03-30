@@ -4,6 +4,7 @@ import Client from "../models/Client.js";
 import Company from "../models/Company.js";
 import { generate_random_string } from "../utils/generate.js";
 import company_service_helpers from "../helpers/company_service_helpers.js";
+import { email_service } from "./email/email_service.js";
 import sequelize  from '../models/sequelize.js';
 
 export const client_service = {
@@ -33,6 +34,27 @@ export const client_service = {
             const client_secret = await company_service_helpers.hash_password(password);
             const client = await Client.create({ client_secret, company_id, name, redirect_uri, grant_types, scope, active, last_active: new Date() });
             await client.save({ transaction });
+
+            const html_content = `
+                <h1>Welcome to Our Service</h1>
+                <p>Dear user,</p>
+                <p>Thank you for signing up for our service. We are excited to have you on board.</p>
+                <p>Your Client with name ${name}</p>
+                <p>Your OAuth2 client has been created with the following details:</p>
+                <ul>
+                    <li>Client ID: ${client.client_id}</li>
+                    <li>Client Secret: ${client_secret}</li>
+                    <li>Redirect URI: ${client.redirect_uri}</li>
+                    <li>Grant Types: ${client.grant_types}</li>
+                    <li>Scope: ${client.scope}</li>
+                </ul>
+                <img src="https://example.com/path-to-your-logo.png" alt="Our Logo" />
+                <p>Best Regards,</p>
+                <p>Your Company Name</p>
+            `;
+
+            await email_service.send_email(company.email, 'Welcome!', html_content);
+            
             await transaction.commit();
             return { client_id: client.client_id, client_secret: client.client_secret, company_id: client.company_id, name: client.name, redirect_uri: client.redirect_uri, grant_types: client.grant_types, scope: client.scope, active: client.active };
         }
