@@ -1,3 +1,4 @@
+<!-- src/views/register_client.ejs -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,7 +17,11 @@
         </div>
         <div>
             <label for="grant_types">Grant Types:</label><br>
-            <input type="text" id="grant_types" name="grant_types" required>
+            <select id="grant_types" name="grant_types" required>
+                <% ['authorization_code', 'password', 'client_credentials', 'refresh_token'].forEach(function(grant_type) { %>
+                    <option value="<%= grant_type %>"><%= grant_type %></option>
+                <% }); %>
+            </select>
         </div>
         <div>
             <label for="scope">Scope:</label><br>
@@ -28,11 +33,11 @@
         </div>
         <div>
             <label for="company_name">Company Name:</label><br>
-            <input type="text" id="company_name" name="company_name" required>
+            <input type="text" id="company_name" name="company_name" value="<%= company.name %>"required>
         </div>
         <div>
             <label for="company_id">Company ID:</label><br>
-            <input type="text" id="company_id" name="company_id" required>
+            <input type="text" id="company_id" name="company_id" value="<%= company.company_id %>" required>
         </div>
         <div>
             <input type="submit" value="Register">

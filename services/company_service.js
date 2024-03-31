@@ -8,6 +8,22 @@ import User from '../models/User.js';
 import Client from '../models/Client.js';
 
 export const company_service = {
+    get_company_by_id: async (company_id) => {
+       
+        if (!company_id) {
+            throw new Error('Company ID is required');
+        }
+        try {
+            const company = await Company.findByPk(company_id);
+        if (!company) {
+            throw new Error('Company not found');
+        }
+            return company;
+        } 
+        catch (error) {
+            throw new Error('Error retrieving company: ' + error.message);
+        }
+    },
   create: async (body) => {
     const { name, password, email } = body;
 

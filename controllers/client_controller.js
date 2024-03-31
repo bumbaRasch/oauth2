@@ -29,14 +29,13 @@ export const client_controller = {
 
     register_client: async (req, res, next) => {
         try {
-            const companies = await company_service.get_companies();
-            const selected_company_id = req.query.company_id;
-            res.render('register_client', { companies, selected_company_id });
+            const company = req.company;
+            res.render('register_client', { company: company });
         } 
         catch (error) {
             res.status(500).send(error.message);
         }
-    }, 
+    },
 
     get_one_client: async (req, res) => {
         try {
