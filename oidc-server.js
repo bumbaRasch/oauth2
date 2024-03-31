@@ -5,6 +5,7 @@ import Provider from 'oidc-provider';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import router from './routes/index.js';  // Import your routes
+import api_router from './routes/api/index.js';  // Import your API routes
 import { create_oidc_configuration } from './config/oidc_config.js';
 
 const app = express();
@@ -32,7 +33,7 @@ app.set('view engine', 'ejs');
     app.use(cookieParser());
 
     app.use('/', router);
-    
+    app.use('/api/v1', api_router);
     app.use((req, res, next) => {
         if (req.session.user) {
         req.user = req.session.user;
