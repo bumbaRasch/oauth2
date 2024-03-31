@@ -11,26 +11,17 @@ export const token_controller = {
     // Temporare token for create a company
     get_temp_token: async (req, res) => {
         const { company_id } = req.body;
-
-        if (!company_id) {
-            return res.status(400).json({ error: 'Company ID is required' });
-        }
-
-        const company = await Company.findByPk(company_id);
-
-        if (!company) {
-            return res.status(404).json({ error: 'Company not found' });
-        }
         
         const temp_token = await token_service.get_temp_token(company_id);
+
         res.json({ temp_token: temp_token });
     },
 
     verify_token: async (req, res, next) => {
-        const token = req.headers['authorization'].split(' ')[1]; // Extract the token from the 'Authorization' header
-
+        const token = token_service.find_token(req.headers, req.cookies, req.body);
+    
         const is_valid = await token_service.verify_token(token);
-
+    
         if (is_valid) {
             next();
         } 
@@ -59,10 +50,7 @@ export const token_controller = {
         const [client_id, client_secret] = Buffer.from(auth_parts[1], 'base64').toString().split(':');
 
         try {
-            const { token, refresh_token } = await token_service.exchange_code_for_token(code, client_id, client_secret, redirect_uri);
-            res.cookie('access_token', token, { httpOnly: true, secure: true });
-            res.cookie('refresh_token', refresh_token, { httpOnly: true, secure: true });
-        
+            const { token, refresh_token } = await token_service.exchange_code_for_token(code, client_id, client_secret, redirect_uri);        
             res.status(200).json({ access_token: token, refresh_token: refresh_token });
         } 
         catch (err) {

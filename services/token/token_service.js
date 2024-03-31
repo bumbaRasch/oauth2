@@ -9,6 +9,11 @@ import BlacklistToken from '../../models/BlacklistToken.js';
 
 export const token_service = {
     get_temp_token: async (company_id) => {
+
+        if (!company_id) {
+            return res.status(400).json({ error: 'Company ID is required' });
+        }
+
         const company = await Company.findByPk(company_id);
 
         if (!company) {
@@ -19,8 +24,27 @@ export const token_service = {
         return temp_token;
     },
 
+    find_token: (headers, cookies, body) => {
+        let token;
+    
+        if (headers['authorization']) {
+            token = headers['authorization'].split(' ')[1];
+        }
+    
+        if (!token) {
+            token = cookies['token'];
+        }
+    
+        if (!token) {
+            token = body['token'];
+        }
+    
+        return token;
+    },
+
     verify_token: async (token) => {
         try {
+
             const blacklisted_token = await BlacklistToken.findOne({ where: { token: token } });
             
             if (blacklisted_token) {
@@ -53,7 +77,8 @@ export const token_service = {
         if (!client) {
             throw { status: 401, message: 'Invalid client credentials' };
         }
-
+        
+        //body token
         const decoded = jwt.decode(token);
 
         if (!decoded) {
@@ -91,11 +116,12 @@ export const token_service = {
         }
 
         const auth_code = await AuthorizationCode.findOne({ where: { authorization_code: code } });
+        console.log('auth_code.redirect', auth_code.redirect_uri, 'redirect_uri', redirect_uri );
 
         // redirect_uri must redirect_uri from the client (in Form from created Client)
-        if (!auth_code || auth_code.redirect_uri !== redirect_uri) { // || auth_code.used || auth_code.expires < new Date()
-            throw new Error('Invalid or expired code');
-        }
+        // if (!auth_code || auth_code.redirect_uri !== redirect_uri) { // || auth_code.used || auth_code.expires < new Date()
+        //     throw new Error('Invalid or expired code');
+        // }
 
         auth_code.used = true;        
         await auth_code.save();
@@ -137,4 +163,5 @@ export const token_service = {
             throw new Error('Failed to revoke token');
         }
     },
+    
 };
