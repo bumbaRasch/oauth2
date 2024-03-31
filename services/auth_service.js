@@ -66,8 +66,8 @@ export const auth_service = {
             redirect_uri: redirect_uri,
             expires: new Date(Date.now() + 15 * 60 * 1000),
             used: false,
-            code_challenge: code_challenge, // Add this line
-            code_challenge_method: code_challenge_method, // Add this line
+            code_challenge: code_challenge,
+            code_challenge_method: code_challenge_method,
         });
 
         return code;
