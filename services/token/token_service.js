@@ -24,11 +24,16 @@ export const token_service = {
         return temp_token;
     },
 
-    find_token: (headers, cookies, body) => {
-        let token;
-    
+    find_token: (headers, cookies, body, query) => {
+        let token = null;
+
         if (headers['authorization']) {
             token = headers['authorization'].split(' ')[1];
+        }
+    
+        // Check custom header, came from the client
+        if (!token && headers['X-Custom-Token']) {
+            token = headers['X-Custom-Token'];
         }
     
         if (!token) {
@@ -39,6 +44,14 @@ export const token_service = {
             token = body['token'];
         }
     
+        if (!token) {
+            token = query['token'];
+        }
+        
+        if (!token) {
+            throw new Error('Token is required');
+        }
+    
         return token;
     },
 
@@ -46,7 +59,6 @@ export const token_service = {
         try {
 
             const blacklisted_token = await BlacklistToken.findOne({ where: { token: token } });
-            
             if (blacklisted_token) {
                 throw new Error('Token has been revoked');
             }
@@ -116,7 +128,6 @@ export const token_service = {
         }
 
         const auth_code = await AuthorizationCode.findOne({ where: { authorization_code: code } });
-        console.log('auth_code.redirect', auth_code.redirect_uri, 'redirect_uri', redirect_uri );
 
         // redirect_uri must redirect_uri from the client (in Form from created Client)
         // if (!auth_code || auth_code.redirect_uri !== redirect_uri) { // || auth_code.used || auth_code.expires < new Date()
