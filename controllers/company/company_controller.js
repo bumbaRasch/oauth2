@@ -5,7 +5,7 @@ export const company_controller = {
     get_company_from_cookie: async (req, res, next) => {
         try {
             const company = await company_service.get_company_by_id(req.cookies.company_id);
-            req.company = company; // Save company in req object
+            req.company = company;
             next();
         } 
         catch (error) {
