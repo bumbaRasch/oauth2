@@ -15,10 +15,8 @@ export const token_controller = {
     },
 
     verify_token: async (req, res, next) => {
-        const token = token_service.find_token(req.headers, req.cookies, req.body);
-    
+        const token = token_service.find_token(req.headers, req.cookies, req.body, req.query);
         const is_valid = await token_service.verify_token(token);
-    
         if (is_valid) {
             next();
         } 
