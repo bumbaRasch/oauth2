@@ -3,6 +3,7 @@ import Client from '../models/Client.js';
 import crypto from 'crypto';
 import { client_service } from '../services/client_service.js';
 import { company_service } from '../services/company_service.js';
+import jwt from 'jsonwebtoken';
 
 
 export const client_controller = {
@@ -19,6 +20,16 @@ export const client_controller = {
             }
 
             const client = await client_service.create_client(name, redirect_uri, grant_types, scope, active, company_name, company_id );
+
+            const token = jwt.sign({ client_id: client.client_id, client_secret: client.client_secret },  process.env.JWT_SECRET_CLIENT || 'jwt_secret', { expiresIn: process.env.JWT_TTL || '1h' });
+
+            // Delete the company_id and temp_token cookies
+            res.cookie('company_id', '', { expires: new Date(0) });
+            res.cookie('token', '', { expires: new Date(0) });
+
+            // Set the JWT token as a secure HTTP-only cookie
+            res.cookie('token', token, { httpOnly: true, secure: true })
+            
             res.redirect(`${ process.env.WEBSITE_URL || 'http://localhost:5000' }/views/choice/user`);
         } 
         catch (error) {
