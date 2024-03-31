@@ -2,10 +2,7 @@
 import jwt from 'jsonwebtoken';
 import User from '../../models/User.js';
 import { token_service } from '../../services/token/token_service.js';
-import Client from '../../models/Client.js';
-import Company from '../../models/Company.js';
 
-import AuthorizationCode from '../../models/AuthorizationCode.js';
 
 export const token_controller = {
     // Temporare token for create a company
