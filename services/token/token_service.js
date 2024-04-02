@@ -42,6 +42,7 @@ export const token_service = {
     
         if (!token) {
             token = body['token'];
+            
         }
     
         if (!token) {
@@ -51,24 +52,32 @@ export const token_service = {
         if (!token) {
             throw new Error('Token is required');
         }
-    
+
         return token;
     },
 
-    verify_token: async (token) => {
-        try {
+    blacklist_verify_token: async (token) => {
+        const blacklisted_token = await BlacklistToken.findOne({ where: { token: token } });
 
-            const blacklisted_token = await BlacklistToken.findOne({ where: { token: token } });
-            if (blacklisted_token) {
-                throw new Error('Token has been revoked');
-            }
+        return blacklisted_token;
+    },
+
+    verify_token: async (token) => {
+        console.log(token)
+        try {
             jwt.verify(token, process.env.JWT_SECRET || 'jwt_secret');
             return true;
         } 
         catch (error) {
+            console.log(error.message);
             return false;
         }
     },
+
+    generate_token: async (payload) => {
+        return jwt.sign(payload, process.env.JWT_SECRET || 'jwt_secret', { expiresIn: process.env.JWT_TTL || '1h' });
+    },
+    
 
 
     // Basic authentication
