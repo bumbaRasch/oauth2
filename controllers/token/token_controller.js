@@ -16,7 +16,14 @@ export const token_controller = {
 
     verify_token: async (req, res, next) => {
         const token = token_service.find_token(req.headers, req.cookies, req.body, req.query);
+        const is_blacklisted = await token_service.blacklist_verify_token(token);
+        
+        if (is_blacklisted) {
+            return res.status(401).json({ message: 'Token is blacklisted' });
+        }
+        
         const is_valid = await token_service.verify_token(token);
+
         if (is_valid) {
             next();
         } 
