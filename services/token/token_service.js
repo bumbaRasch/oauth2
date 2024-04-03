@@ -5,7 +5,15 @@ import AuthorizationCode from '../../models/AuthorizationCode.js';
 import User from '../../models/User.js';
 import Company from '../../models/Company.js';
 import BlacklistToken from '../../models/BlacklistToken.js';
+import fs from 'fs';
 
+import { fileURLToPath } from 'url';
+import path, { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+
+const PRIVATE_KEY = fs.readFileSync(path.resolve(process.cwd(), 'private.pem'), 'utf8');
+const PUBLIC_KEY = fs.readFileSync(path.resolve(process.cwd(), 'public.pem'), 'utf8');
 
 export const token_service = {
     get_temp_token: async (company_id) => {
@@ -20,7 +28,7 @@ export const token_service = {
             throw new Error('Company not found');
         }
 
-        const temp_token = jwt.sign({ company_id: company_id }, process.env.JWT_SECRET || 'jwt_secret', { expiresIn: process.env.JWT_TTL || '1h' });
+        const temp_token = jwt.sign({ company_id: company_id }, PRIVATE_KEY, { algorithm: 'RS256', expiresIn: process.env.JWT_TTL || '1h' });
         return temp_token;
     },
 
@@ -48,11 +56,10 @@ export const token_service = {
         if (!token) {
             token = query['token'];
         }
-        
+
         if (!token) {
             throw new Error('Token is required');
         }
-
         return token;
     },
 
@@ -63,19 +70,27 @@ export const token_service = {
     },
 
     verify_token: async (token) => {
-        console.log(token)
+       
         try {
-            jwt.verify(token, process.env.JWT_SECRET || 'jwt_secret');
+            jwt.verify(token, PUBLIC_KEY);
             return true;
         } 
         catch (error) {
-            console.log(error.message);
+            console.error(error.message);
             return false;
         }
     },
 
     generate_token: async (payload) => {
-        return jwt.sign(payload, process.env.JWT_SECRET || 'jwt_secret', { expiresIn: process.env.JWT_TTL || '1h' });
+        return jwt.sign(payload, PRIVATE_KEY, { algorithm: 'RS256', expiresIn: process.env.JWT_TTL || '1h' });
+    },
+
+    compare_token_and_query_data: (token, query_data, key) => {
+        const decoded = jwt.decode(token);
+    
+        if (query_data[key] && decoded[key] !== query_data[key]) {
+            throw new Error(`${key} in token and query parameters do not match`);
+        }
     },
     
 
@@ -146,21 +161,21 @@ export const token_service = {
         auth_code.used = true;        
         await auth_code.save();
 
-        const token         = jwt.sign({ user_id: auth_code.user_id, company_id: client.company_id }, process.env.JWT_SECRET || 'jwt_secret', { expiresIn: process.env.JWT_TTL || '1h' })
-        const refresh_token = jwt.sign({ user_id: auth_code.user_id, company_id: client.company_id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
-
+        const token = jwt.sign({ user_id: auth_code.user_id, company_id: client.company_id }, PRIVATE_KEY, { algorithm: 'RS256', expiresIn: process.env.JWT_TTL || '1h' });
+        const refresh_token = jwt.sign({ user_id: auth_code.user_id, company_id: client.company_id }, PRIVATE_KEY, { algorithm: 'RS256', expiresIn: '7d' });
+    
         return { token, refresh_token };
     },
 
     refresh_token: async (refresh_token) => {
         try {
-            const decoded    = jwt.verify(refresh_token, process.env.REFRESH_TOKEN_SECRET);
-            const user_id    = decoded.user_id;
+            const decoded = jwt.verify(refresh_token, PUBLIC_KEY);
+            const user_id = decoded.user_id;
             const company_id = decoded.company_id;
-
-            const newToken        = jwt.sign({ user_id: user_id, company_id: company_id }, process.env.JWT_SECRET || 'jwt_secret', { expiresIn: process.env.JWT_TTL || '1h' });
-            const newRefreshToken = jwt.sign({ user_id: user_id, company_id: company_id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
-
+    
+            const newToken = jwt.sign({ user_id: user_id, company_id: company_id }, PRIVATE_KEY, { algorithm: 'RS256', expiresIn: process.env.JWT_TTL || '1h' });
+            const newRefreshToken = jwt.sign({ user_id: user_id, company_id: company_id }, PRIVATE_KEY, { algorithm: 'RS256', expiresIn: '7d' });
+    
             return { access_token: newToken, refresh_token: newRefreshToken };
         } 
         catch (error) {
