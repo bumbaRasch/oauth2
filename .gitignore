@@ -129,4 +129,6 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-#app.js
+# Code pair
+private.pem
+public.pem
