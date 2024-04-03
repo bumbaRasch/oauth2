@@ -1,6 +1,5 @@
 // controllers/token_controller.js
-import jwt from 'jsonwebtoken';
-import User from '../../models/User.js';
+
 import { token_service } from '../../services/token/token_service.js';
 
 
@@ -8,14 +7,19 @@ export const token_controller = {
     // Temporare token for create a company
     get_temp_token: async (req, res) => {
         const { company_id } = req.body;
-        
         const temp_token = await token_service.get_temp_token(company_id);
 
         res.json({ temp_token: temp_token });
     },
 
     verify_token: async (req, res, next) => {
+        
         const token = token_service.find_token(req.headers, req.cookies, req.body, req.query);
+       
+        if (!token) {
+            return res.status(401).json({ message: 'Token is required' });
+        };
+
         const is_blacklisted = await token_service.blacklist_verify_token(token);
         
         if (is_blacklisted) {
@@ -23,12 +27,12 @@ export const token_controller = {
         }
         
         const is_valid = await token_service.verify_token(token);
-
+    
         if (is_valid) {
             next();
         } 
         else {
-            res.status(401).json({ message: 'Token is invalid or expired' });
+            res.status(401).json({ message: 'Token is invalid or expired567' });
         }
     },
 
