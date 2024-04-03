@@ -5,48 +5,63 @@ import { token_service } from '../../services/token/token_service.js';
 export const token_controller = {
     // Temporare token for create a company
     get_temp_token: async (req, res) => {
-        const { company_id } = req.body;
-        
-        const temp_token = await token_service.get_temp_token(company_id);
 
+        const temp_token = await token_service.generate_token(req.body);
+        
         res.json({ temp_token: temp_token });
     },
 
-    verify_token_with_next: async (req, res, next) => {
-        const token = token_service.find_token(req.headers, req.cookies, req.body, req.query);
-       
-        const is_blacklisted = await token_service.blacklist_verify_token(token);
-        
-        if (is_blacklisted) {
-            return res.status(401).json({ message: 'Token is blacklisted' });
+    verify_token_with_next: (key) => {
+        return async (req, res, next) => {
+            try {
+                const token = token_service.find_token(req.headers, req.cookies, req.body, req.query);
+            
+                const is_blacklisted = await token_service.blacklist_verify_token(token);
+                
+                if (is_blacklisted) {
+                    return res.status(401).json({ message: 'Token is blacklisted' });
+                }
+                
+                const is_valid = await token_service.verify_token(token);
+            
+                if (!is_valid) {
+                    return res.status(401).json({ message: 'Token is invalid or expired' });
+                }
+                
+                if(key){
+                    token_service.compare_token_and_query_data(token, req.query, key);
+                }
+                    
+                next();
+            } 
+            catch (error) {
+                return res.status(401).json({ message: error.message });
+            }   
         }
-        
-        const is_valid = await token_service.verify_token(token);
-        console.log('is_valid', is_valid);
-    
-        if (!is_valid) {
-            return res.status(401).json({ message: 'Token is invalid or expired' });
-        }
-        
-        next();
     },
     
     verify_token_without_next: async (req, res) => {
-        const token = token_service.find_token(req.headers, req.cookies, req.body, req.query);
+        try {
+            const token = token_service.find_token(req.headers, req.cookies, req.body, req.query);
         
-        const is_blacklisted = await token_service.blacklist_verify_token(token);
+            const is_blacklisted = await token_service.blacklist_verify_token(token);
+            
+            if (is_blacklisted) {
+                return res.status(401).json({ message: 'Token is blacklisted' });
+            }
+            
+            const is_valid = await token_service.verify_token(token);
         
-        if (is_blacklisted) {
-            return res.status(401).json({ message: 'Token is blacklisted' });
+            if (!is_valid) {
+                return res.status(401).json({ message: 'Token is invalid or expired' });
+            }
+            
+            return res.status(200).json({ is_valid: is_valid });
         }
-        
-        const is_valid = await token_service.verify_token(token);
-    
-        if (!is_valid) {
-            return res.status(401).json({ message: 'Token is invalid or expired' });
+        catch (error) {
+            return res.status(401).json({ message: error.message });
         }
-        
-        return res.status(200).json({ is_valid: is_valid });
+       
     },
 
 
