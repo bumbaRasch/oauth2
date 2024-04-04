@@ -4,11 +4,11 @@ import { token_service } from '../../services/token/token_service.js';
 
 export const token_controller = {
     // Temporare token for create a company
-    get_temp_token: async (req, res) => {
+    get_token: async (req, res) => {
 
-        const temp_token = await token_service.generate_token(req.body);
+        const token = await token_service.generate_token(req.body);
         
-        res.json({ temp_token: temp_token });
+        res.json({ token: token });
     },
 
     verify_token_with_next: (key) => {
