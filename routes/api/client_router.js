@@ -5,7 +5,7 @@ import { token_controller } from '../../controllers/api/token_controller.js';
 
 const router = express.Router();
 
-router.get('/register/client', token_controller.get_temp_token);
+router.get('/register/client', token_controller.get_token);
 
 router.post('/register/client', token_controller.verify_token_with_next(), client_controller.create_client);
 router.get('/clients', token_controller.verify_token_with_next('client_id'), client_controller.get_all_clients);
