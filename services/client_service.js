@@ -30,9 +30,7 @@ export const client_service = {
                 throw new Error('A client with the same name or redirect_uri already exists for this company');
             }
 
-            const password = generate_random_string(16);
-            const client_secret = await company_service_helpers.hash_password(password);
-            const client = await Client.create({ client_secret, company_id, name, redirect_uri, grant_types, scope, active, last_active: new Date() });
+            const client = await Client.create({ password, company_id, name, redirect_uri, grant_types, scope, active, last_active: new Date() });
             await client.save({ transaction });
 
             const html_content = `
