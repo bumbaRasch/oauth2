@@ -4,10 +4,15 @@ import bodyParser from 'body-parser';
 import Provider from 'oidc-provider';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
+import { rateLimit } from 'express-rate-limit'
 import router from './routes/index.js';  // Import your routes
 import api_router from './routes/api/index.js';  // Import your API routes
 import { create_oidc_configuration } from './config/oidc_config.js';
 
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100 // limit each IP to 100 requests per windowMs
+  });
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -31,6 +36,9 @@ app.set('view engine', 'ejs');
     });
 
     app.use(cookieParser());
+
+    // Limit the number of requests from an IP address
+    app.use(limiter);
 
     app.use('/', router);
     app.use('/api/v1', api_router);
