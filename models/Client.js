@@ -99,7 +99,22 @@ Client.init({
   modelName: 'Client',
   timestamps: true,
   createdAt: 'created_at',
-  updatedAt: 'updated_at'
+  updatedAt: 'updated_at',
+  hooks: {
+    beforeCreate: async (client) => {
+      if (client.changed('client_secret')) {
+        const salt = await bcrypt.genSalt(10);
+        client.client_secret = await bcrypt.hash(client.client_secret, salt);
+      }
+    },
+    beforeUpdate: async (client) => {
+      if (client.changed('client_secret')) {
+        const salt = await bcrypt.genSalt(10);
+        client.client_secret = await bcrypt.hash(client.client_secret, salt);
+      }
+    }
+  }
+  
 });
 
 export default Client;
