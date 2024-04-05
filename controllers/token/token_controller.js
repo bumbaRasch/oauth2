@@ -32,7 +32,7 @@ export const token_controller = {
             next();
         } 
         else {
-            res.status(401).json({ message: 'Token is invalid or expired567' });
+            res.status(401).json({ message: 'Token is invalid or expired' });
         }
     },
 
