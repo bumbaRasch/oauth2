@@ -13,4 +13,10 @@ router.get('/clients/:client_id', token_controller.verify_token_with_next('clien
 router.put('/clients/:client_id',token_controller.verify_token_with_next('client_id'), client_controller.update_client);
 router.delete('/clients/:client_id', token_controller.verify_token_with_next('client_id'), client_controller.delete_client);
 
+
+
+//////////APP ROUTES//////////
+router.post('/app/register', token_controller.get_token);
+router.post('/app/create', client_controller.create_client)
+
 export default router;
