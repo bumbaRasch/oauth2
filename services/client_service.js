@@ -29,8 +29,10 @@ export const client_service = {
             if (existing_client) {
                 throw new Error('A client with the same name or redirect_uri already exists for this company');
             }
+ 
+            const client_secret = generate_random_string(16);
+            const client = await Client.create({ client_secret, company_id, name, redirect_uri, grant_types, scope, active, last_active: new Date() });
 
-            const client = await Client.create({ password, company_id, name, redirect_uri, grant_types, scope, active, last_active: new Date() });
             await client.save({ transaction });
 
             const html_content = `

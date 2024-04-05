@@ -1,5 +1,6 @@
 // models/Client.js
 import { Model, DataTypes } from 'sequelize';
+import bcrypt from 'bcryptjs';
 import sequelize from './sequelize.js'; // import your sequelize instance
 
 class Client extends Model {}
