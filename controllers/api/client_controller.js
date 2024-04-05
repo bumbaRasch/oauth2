@@ -7,7 +7,7 @@ export const client_controller = {
     create_client: async (req, res) => {
         try {
             let { name, redirect_uri, grant_types, scope, active, company_name, company_id } = req.body;
-            active = active === 'on' ? true : false;
+            active = active === 'on' || active === true ? true : false;
 
             // Validate input
             if (!name || !redirect_uri || !grant_types || !scope || !company_name || !company_id) {
