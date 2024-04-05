@@ -8,7 +8,7 @@ export const token_controller = {
 
         const token = await token_service.generate_token(req.body);
         
-        res.json({ token: token });
+        res.status(200).json({ token: token });
     },
 
     verify_token_with_next: (key) => {
