@@ -1,5 +1,6 @@
 // models/Client.js
 import { Model, DataTypes } from 'sequelize';
+import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import sequelize from './sequelize.js'; // import your sequelize instance
 
@@ -15,7 +16,7 @@ Client.init({
     },
     client_secret: {
         type: DataTypes.STRING,
-        allowNull: false
+        defaultValue: () => crypto.randomBytes(16).toString('hex')
     },
     redirect_uri: {
         type: DataTypes.STRING,
@@ -61,7 +62,7 @@ Client.init({
         type: DataTypes.BOOLEAN,
         defaultValue: false,
     },
-    name: {
+    client_name: {
         type: DataTypes.STRING,
         allowNull: false,
     },
@@ -110,10 +111,8 @@ Client.init({
         updatedAt: 'updated_at',
         hooks: {
         beforeCreate: async (client) => {
-            if (client.changed('client_secret')) {
-                const salt = await bcrypt.genSalt(10);
-                client.client_secret = await bcrypt.hash(client.client_secret, salt);
-            }
+            const salt = await bcrypt.genSalt(10);
+            client.client_secret = await bcrypt.hash(client.client_secret, salt);
         },
         beforeUpdate: async (client) => {
             if (client.changed('client_secret')) {
