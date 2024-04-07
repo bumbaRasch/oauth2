@@ -63,20 +63,51 @@ export const token_service = {
         return token;
     },
 
-    blacklist_verify_token: async (token) => {
-        const blacklisted_token = await BlacklistToken.findOne({ where: { token: token } });
-
+    blacklist_verify_token: async (token) => {  
+        if (!token) {
+            console.log('Token is required');
+            return null;
+        }
+    
+        let blacklisted_token;
+        try {
+            blacklisted_token = await BlacklistToken.findOne({ where: { token: token } });
+        } 
+        catch (error) {
+            console.log('Error querying the database:', error);
+            return null;
+        }
+    
+        if (blacklisted_token) {
+            console.log('Token is in the blacklist');
+            return { error: 'Token is blacklisted' };
+        }
+    
         return blacklisted_token;
     },
 
     verify_token: async (token) => {
-       
+        if (!token) {
+            console.log('Token is required');
+            return false;
+        }
+
+        if (typeof token !== 'string') {
+            console.error('Token must be a string');
+            return false;
+        }
         try {
-            jwt.verify(token, PUBLIC_KEY);
+            const decoded = jwt.verify(token, PUBLIC_KEY);
+
+            if (!decoded) {
+                console.error('Invalid token data');
+                return false;
+            }
+
             return true;
         } 
         catch (error) {
-            console.error(error.message);
+            console.error('Error verifying token:', error.message);
             return false;
         }
     },
