@@ -35,8 +35,9 @@ export const token_service = {
     find_token: (headers, cookies, body, query) => {
         let token = null;
 
-        if (headers['authorization']) {
-            token = headers['authorization'].split(' ')[1];
+        const auth_header = headers['authorization'] || headers['Authorization'];
+        if (auth_header) {
+            token = auth_header.split(' ')[1];
         }
     
         // Check custom header, came from the client
@@ -60,6 +61,7 @@ export const token_service = {
         if (!token) {
             throw new Error('Token is required');
         }
+       
         return token;
     },
 
@@ -86,34 +88,39 @@ export const token_service = {
         return blacklisted_token;
     },
 
-    verify_token: async (token) => {
+    verify_and_decode_token: async (token) => {
         if (!token) {
             console.log('Token is required');
-            return false;
+            return null;
         }
 
         if (typeof token !== 'string') {
             console.error('Token must be a string');
-            return false;
+            return null;
         }
-        try {
-            const decoded = jwt.verify(token, PUBLIC_KEY);
 
-            if (!decoded) {
+        try {
+            const decoded_token = jwt.verify(token, PUBLIC_KEY);
+
+            if (!decoded_token) {
                 console.error('Invalid token data');
-                return false;
+                return null;
             }
 
-            return true;
+            return decoded_token;
         } 
         catch (error) {
             console.error('Error verifying token:', error.message);
-            return false;
+            return null;
         }
     },
 
-    generate_token: async (payload) => {
-        return jwt.sign(payload, PRIVATE_KEY, { algorithm: 'RS256', expiresIn: process.env.JWT_TTL || '1h' });
+    generate_token: async (payload, key = PRIVATE_KEY, algorithm = 'RS256', expiresIn = process.env.JWT_TTL || '1h') => {
+        if (!payload || typeof payload !== 'object' || Object.keys(payload).length === 0) {
+            throw new Error('Invalid payload');
+        }
+    
+        return jwt.sign(payload, key, { algorithm: algorithm, expiresIn: expiresIn });
     },
 
     compare_token_and_query_data: (token, query_data, key) => {
@@ -160,7 +167,7 @@ export const token_service = {
             throw { status: 404, message: 'User not found' };
         }
 
-        const is_valid = await token_service.verify_token(token);
+        const is_valid = await token_service.verify_and_decode_token(token);
 
         if (is_valid) {
             return { active: true };

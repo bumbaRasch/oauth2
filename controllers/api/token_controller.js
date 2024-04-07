@@ -5,10 +5,13 @@ import { token_service } from '../../services/token/token_service.js';
 export const token_controller = {
     // Temporare token for create a company
     get_token: async (req, res) => {
-
-        const token = await token_service.generate_token(req.body);
-        
-        res.status(200).json({ token: token });
+        try {
+            const token = await token_service.generate_token(req.body);
+            res.status(200).json({ token: token });
+        } 
+        catch (error) {
+            res.status(500).json({ error: 'Failed to generate token' });
+        }
     },
 
     verify_token_with_next: (key) => {
@@ -17,13 +20,13 @@ export const token_controller = {
                 const token = token_service.find_token(req.headers, req.cookies, req.body, req.query);
             
                 const is_blacklisted = await token_service.blacklist_verify_token(token);
-                
                 if (is_blacklisted) {
                     return res.status(401).json({ message: 'Token is blacklisted' });
                 }
                 
-                const is_valid = await token_service.verify_token(token);
-            
+                req.token = await token_service.verify_and_decode_token(token);
+        
+                const is_valid = req.token !== null;
                 if (!is_valid) {
                     return res.status(401).json({ message: 'Token is invalid or expired' });
                 }
@@ -45,13 +48,13 @@ export const token_controller = {
             const token = token_service.find_token(req.headers, req.cookies, req.body, req.query);
         
             const is_blacklisted = await token_service.blacklist_verify_token(token);
-            
             if (is_blacklisted) {
                 return res.status(401).json({ message: 'Token is blacklisted' });
             }
             
-            const is_valid = await token_service.verify_token(token);
+            req.token = await token_service.verify_and_decode_token(token);
         
+            const is_valid = req.token !== null;
             if (!is_valid) {
                 return res.status(401).json({ message: 'Token is invalid or expired' });
             }
