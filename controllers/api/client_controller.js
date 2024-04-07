@@ -16,6 +16,18 @@ export const client_controller = {
             res.status(500).json({ message: 'Error occurred while creating the temporary client.' });
         }
     },
+
+    confirm_temporary_client: async (req, res) => {
+        const { client_id, company_id } = req.token;
+        try {
+            const client = await client_service.confirm_temporary_client(client_id, company_id);
+            res.status(200).json({ message: 'Temporary client successfully confirmed' });
+        } 
+        catch (error) {
+            res.status(400).json({ message: error.message });
+        }
+    },
+
     create_client: async (req, res) => {
         try {
             let { name, redirect_uri, grant_types, scope, active, company_name, company_id } = req.body;

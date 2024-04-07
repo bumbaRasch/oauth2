@@ -3,15 +3,38 @@ import { Op } from "sequelize";
 import Client from "../models/Client.js";
 import Company from "../models/Company.js";
 import { generate_random_string } from "../utils/generate.js";
-import company_service_helpers from "../helpers/company_service_helpers.js";
+import validators from "../utils/validators.js";
 import { email_service } from "./email/email_service.js";
 import sequelize  from '../models/sequelize.js';
 
 export const client_service = {
     create_temporary_client: async (client) => {
-        const client_created = await Client.create({...client, status: 'unconfirmed' , last_active: new Date()});
-        await client_created.save();
-        return client_created;
+        if (typeof client !== 'object') {
+            throw new Error('Client must be an object');
+        }
+        if (!client.client_name || !client.redirect_uri || !client.grant_types || !client.scope || !client.company_id) {
+           throw new Error('client_name, redirect_uri, grant_types, scope, and company_id are required');
+        }
+        return await Client.create({...client, status: 'unconfirmed' , last_active: new Date()});
+    },
+
+    confirm_temporary_client: async (client_id, company_id) => {
+
+        // Check if client_id and company_id are valid UUIDs
+        validators.validate_uuids(client_id, company_id);
+
+        const client = await Client.findByPk(client_id);
+        if (!client || client.company_id != company_id) {
+            throw new Error('Client not found or does not belong to this company');
+        }
+
+        // Update client status and last active date
+        await client.update({
+            status: 'confirmed',
+            last_active: new Date()
+        });
+
+        return client.reload();
     },
 
     create_client: async ( name, redirect_uri, grant_types, scope, active, company_name, company_id ) => {
