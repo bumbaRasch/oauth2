@@ -35,13 +35,14 @@ wird aber normalerweise für die Produktionsumgebung nicht empfohlen, da dies zu
 //   await import('./UserGroup.js');
 //   await import('./CompanyGroup.js');
 //   await import('./CompanyFeature.js');
-//   await import('./associations.js');
 //   await import('./BlacklistToken.js');
+//   await import('./associations.js');
+//   
 // })();
 
 
 // // Sync all models
-// sequelize.sync({ force: true })
+// sequelize.sync({ force: false })
 //   .then(() => console.log('All models were synchronized successfully.'))
 //   .catch(error => console.log('An error occurred:', error));
 
