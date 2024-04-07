@@ -8,8 +8,8 @@ export const client_controller = {
         const client = req.body;
         try {
             const client_created = await client_service.create_temporary_client(client);
-            console.log('client_created', client_created);
-            res.status(200).json(client_created);
+            const token = await token_service.generate_token({ client_id: client_created.client_id, company_id: client_created.company_id });
+            res.status(200).json({ client_created, token });
         }
         catch (error) {
             console.error(error);
