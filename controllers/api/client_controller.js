@@ -4,6 +4,18 @@ import { client_service } from '../../services/client_service.js';
 import { token_service } from '../../services/token/token_service.js';
 
 export const client_controller = {
+    create_temporary_client: async (req, res) => {
+        const client = req.body;
+        try {
+            const client_created = await client_service.create_temporary_client(client);
+            console.log('client_created', client_created);
+            res.status(200).json(client_created);
+        }
+        catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Error occurred while creating the temporary client.' });
+        }
+    },
     create_client: async (req, res) => {
         try {
             let { name, redirect_uri, grant_types, scope, active, company_name, company_id } = req.body;

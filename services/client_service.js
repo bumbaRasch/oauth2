@@ -8,6 +8,12 @@ import { email_service } from "./email/email_service.js";
 import sequelize  from '../models/sequelize.js';
 
 export const client_service = {
+    create_temporary_client: async (client) => {
+        const client_created = await Client.create({...client, status: 'unconfirmed' , last_active: new Date()});
+        await client_created.save();
+        return client_created;
+    },
+
     create_client: async ( name, redirect_uri, grant_types, scope, active, company_name, company_id ) => {
         const transaction = await sequelize.transaction();
         try {
