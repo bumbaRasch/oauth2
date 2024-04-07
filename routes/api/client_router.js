@@ -18,6 +18,7 @@ router.delete('/clients/:client_id', token_controller.verify_token_with_next('cl
 //////////APP ROUTES//////////
 router.post('/app/register', token_controller.get_token);
 router.post('/app/create_temp_client', token_controller.verify_token_with_next("company_id"), client_controller.create_temporary_client)
-router.get('/app/clients', client_controller.get_all_clients);
+router.post('/app/confirm_temporary_client', token_controller.verify_token_with_next("client_id"), client_controller.confirm_temporary_client)
+router.get('/app/clients', token_controller.verify_token_with_next("client_id"), client_controller.get_all_clients);
 
 export default router;
