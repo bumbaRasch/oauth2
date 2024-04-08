@@ -28,6 +28,22 @@ export const client_controller = {
         }
     },
 
+    //create client for app
+    create_client_app: async (req, res) => {
+        const { client_id, company_id } = req.token;
+        
+        try {
+            const client = await client_service.create_client_app(client_id, company_id);
+    
+            const token = await token_service.generate_token({ client_id: client.client_id, client_secret: client.client_secret });
+            res.status(200).json({ client, token });
+        }
+        catch (error) {
+            res.status(500).json({ message: `Error occurred while creating the client: ${error.message}` });
+        }
+    },
+
+    // own check;
     create_client: async (req, res) => {
         try {
             let { name, redirect_uri, grant_types, scope, active, company_name, company_id } = req.body;
