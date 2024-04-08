@@ -23,6 +23,35 @@ export const validators = {
         next();
     },
 
+    validate_client_token_request: (req, res, next) => {
+        if (!req.body) {
+            return res.status(400).json({ error: 'Payload is required' });
+        }
+
+        const { client_name, website, redirect_uri,  company_id} = req.body;
+
+        if (!client_name || typeof client_name !== 'string') {
+            return res.status(400).json({ error: 'Invalid client_name' });
+        }
+    
+        if (!website || typeof website !== 'string') {
+            return res.status(400).json({ error: 'Invalid website' });
+        }
+    
+        if (!redirect_uri || typeof redirect_uri !== 'string') {
+            return res.status(400).json({ error: 'Invalid email' });
+        }
+
+        try {
+            validators.validate_uuids(company_id);
+        } 
+        catch (error) {
+            return res.status(400).json({ error: error.message });
+        }
+        
+        next();
+    },
+
     validate_uuids: (...uuids) => {
         uuids.forEach(uuid => {
             if (!uuid) {
