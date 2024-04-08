@@ -1,5 +1,5 @@
 // services/client_service.js
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
 import Client from "../models/Client.js";
 import Company from "../models/Company.js";
 import { generate_random_string } from "../utils/generate.js";
@@ -35,6 +35,33 @@ export const client_service = {
         });
 
         return client.reload();
+    },
+
+    create_client_app: async (client_id, company_id) => {
+        const transaction = await sequelize.transaction();
+        try {
+            validators.validate_uuids(client_id, company_id);
+            
+            const client = await Client.findOne({ where: { client_id, company_id } });
+
+            // if (!client || client.status !== 'confirmed' || Date.now() - client.last_active.getTime() > 15 * 60 * 1000) {
+            //     throw new Error('Client not confirmed within the required timeframe.');
+            // }
+
+            await client.update({
+                status: 'active',
+                last_active: new Date()
+            });
+    
+            await transaction.commit();
+    
+            return client;
+    
+        }
+        catch (error) {
+            await transaction.rollback();
+            throw new Error(`Error creating client: ${error.message}`);
+        }
     },
 
     create_client: async ( name, redirect_uri, grant_types, scope, active, company_name, company_id ) => {
