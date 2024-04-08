@@ -17,7 +17,7 @@ Company.init({
         allowNull: false,
         defaultValue: DataTypes.UUIDV4
     },
-    name: {
+    company_name: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: false,
